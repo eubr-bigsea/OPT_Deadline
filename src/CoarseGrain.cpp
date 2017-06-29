@@ -1,6 +1,4 @@
 /*
-Copyright 2017 Valeria Callioni
-Copyright 2017 Giulia Landriani
 Copyright 2017 Biagio Festa <info@biagiofesta.it>
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,101 +15,177 @@ limitations under the License.
 */
 
 #include "CoarseGrain.hpp"
-#include <algorithm>
-#include <string>
 #include <utility>
+#include <vector>
 
-CoarseGrain::CoarseGrain(TimeInstant deadline) {
-  d = deadline;
-  D = deadline / TimeInstant(100);
+double CoarseGrain::compute_number_of_cores_from_deadline(
+    const Application& app, const TimeInstant& deadline) {
+  //    alfa/n_core  * beta   = deadline
+  //
+  //        ===>
+  //                  n_core = alfa / (deadline * beta)
+  return app.get_alpha() / (static_cast<double>(deadline) * app.get_beta());
 }
 
-void CoarseGrain::min(std::ofstream &ofs, Process &p, std::string argv) {
-  while (D > tol && it <= max_it && diff1 >= 1 && diff2 >= 1) {
-    ofs << "Now the coarse grain method begins. Given a delta, we want to "
-           "select the application that \r\n provides the minimum cost if we "
-           "add cores and the one that \r\n provides the maximum saving if we "
-           "remove cores. \r\n \r\n";
+double CoarseGrain::objective_function(const AppNCore& app1,
+                                       const AppNCore& app2) {
+  const Application& app1_ref = *app1.first;
+  const Application& app2_ref = *app2.first;
+  const unsigned& num_cores_app1 = app1.second;
+  const unsigned& num_cores_app2 = app2.second;
 
-    std::pair<unsigned int, unsigned int> maxmin = p.delta(D);
+  double cost_app1 = app1_ref.get_weight() * num_cores_app1;
+  double cost_app2 = app2_ref.get_weight() * num_cores_app2;
 
-    diff1 = p[maxmin.first].get_number_of_core() - p[maxmin.first].get_n1();
-    diff2 = p[maxmin.second].get_n2() - p[maxmin.second].get_number_of_core();
+  return cost_app1 + cost_app2;
+}
 
-    std::pair<double, double> costs =
-        p.evaluate_costs(maxmin.first, maxmin.second);
-    ofs << "Using delta = " << D << " application " << maxmin.first
-        << " implies a saving of "
-        << p[maxmin.first].get_weight() *
-               (p[maxmin.first].get_number_of_core() - p[maxmin.first].get_n1())
-        << "; \r\n";
-    ofs << "application " << maxmin.first << " implies a saving of "
-        << p[maxmin.second].get_weight() *
-               (p[maxmin.second].get_n1() -
-                p[maxmin.second].get_number_of_core())
-        << ".\r\n";
+double CoarseGrain::initialize_delta_deadline(const Process& process) {
+  // TOT_Deadline / number_app_in_process
+  return process.get_total_deadline() / process.get_number_applications();
+}
 
-    // costs = (old_cost, new_cost)
-    ofs << "Old total cost " << costs.first << "\r\n";
-    ofs << "New total cost " << costs.second << "\r\n";
+void CoarseGrain::shift_deadline(Application* app_reduce,
+                                 Application* app_increment,
+                                 const double delta_deadline,
+                                 PossibleDeadlineShift* out_solution) {
+  // Set some preliminary information in the output
+  out_solution->m_delta_deadline = delta_deadline;
+  out_solution->m_app_reduce = app_reduce;
+  out_solution->m_app_increment = app_increment;
 
-    // if we can save something, do that
-    if (costs.first > costs.second) {
-      ofs << "Since the new cost is less than the old one, we proceed with the "
-             "delta method, considering every time half of the previous delta. "
-             "\r\n \r\n";
+  // Get the current deadline of two applications
+  const auto deadline_appI = app_reduce->get_deadline();
+  const auto deadline_appJ = app_increment->get_deadline();
 
-      while (costs.first > costs.second && p.total_real_time() < d) {
-        p.reset_core_dline(maxmin.first, maxmin.second, D);
-        D = D / 2;
-        maxmin = p.delta(D);
-        costs = p.evaluate_costs(maxmin.first, maxmin.second);
-        ofs << "Using delta = " << D << " application " << maxmin.first
-            << " implies a saving of "
-            << p[maxmin.first].get_weight() *
-                   (p[maxmin.first].get_number_of_core() -
-                    p[maxmin.first].get_n1())
-            << "; \r\n";
-        ofs << "while application " << maxmin.first << " implies a saving of "
-            << p[maxmin.second].get_weight() *
-                   (p[maxmin.second].get_n1() -
-                    p[maxmin.second].get_number_of_core())
-            << ".\r\n";
-        ofs << "Old total cost " << costs.first << "\r\n";
-        ofs << "New total cost " << costs.second << "\r\n \r\n";
-      }
+  // Get the number of cores in accordance with those deadlines
+  const unsigned ncoresI =
+      compute_number_of_cores_from_deadline(*app_reduce, deadline_appI);
+  const unsigned ncoresJ =
+      compute_number_of_cores_from_deadline(*app_increment, deadline_appJ);
 
-      ofs << "After coarse grain method the total cost is " << p.total_cost()
-          << "\r\n \r\n";
+  // Compute the new deadine: subtract from appI and increment appJ
+  const double deadline_appI_new = deadline_appI - delta_deadline;
+  const double deadline_appJ_new = deadline_appI + delta_deadline;
 
-      ofs << "Total deadline: " << d
-          << " and total_real_time: " << p.total_real_time() << "\r\n";
+  // Compute the new number of cores with new deadlines
+  const unsigned ncoresI_new =
+      compute_number_of_cores_from_deadline(*app_reduce, deadline_appI_new);
+  const unsigned ncoresJ_new =
+      compute_number_of_cores_from_deadline(*app_increment, deadline_appJ_new);
 
-      for (unsigned int k = 0; k < p.get_number_applications(); k++)
-        ofs << "Application " << k + 1
-            << " nr. of cores: " << p[k].get_number_of_core() << "\r\n";
+  // Compute difference in number of cores
+  const unsigned ncores_delta_I = ncoresI_new - ncoresI;
+  const unsigned ncores_delta_J = ncoresJ_new - ncoresJ;
+  assert(ncores_delta_I <= 0);
+  assert(ncores_delta_J >= 0);
 
-      ofs << "\r\n";
-      ofs << "Now we start the fine grain search with the " << argv
-          << " method. \r\n \r\n";
-      if (argv == "weights")
-        fine_grain = new FineGrainWeights();
-      else
-        fine_grain = new FineGrainDerivative();
+  // Compute the evaluation after move deadlines
+  const double evaluation = objective_function({app_reduce, ncoresI_new},
+                                               {app_increment, ncoresJ_new});
+  out_solution->m_evaluation_cost = evaluation;
+  out_solution->m_new_deadline_app_reduce = deadline_appI_new;
+  out_solution->m_new_deadline_app_increment = deadline_appJ_new;
+}
 
-      fine_grain->set_weights(p, ofs);
-      time_point start = std::chrono::system_clock::now();
-      fine_grain->find_min(p, ofs);
-      time_point finish = std::chrono::system_clock::now();
-      help::time_consumption(start, finish, ofs);
+void CoarseGrain::process(Process* process, std::ostream* log) {
+  *log << "CourseGrain::process > Starting process\n";
 
-      delete fine_grain;
-      break;  // if we already have added ore removed just one core at a time,
-              // do not use delta/2
+  // Get number of applications
+  const auto num_of_apps = process->get_number_applications();
+
+  if (num_of_apps == 0) {
+    THROW_RUNTIME_ERROR("CoarseGrain: no applications to process");
+  }
+
+  // Initialize deadline
+  double delta_deadline = initialize_delta_deadline(*process);
+
+  // Local vector of possible solution
+  std::vector<PossibleDeadlineShift> possible_solutions;
+
+  // Local solution
+  PossibleDeadlineShift possible_solution;
+
+  // almeno una attuo e reitero sempre con quel delta lì
+  // se è vuoto prendo delta mezza
+  // max number iterazioni complessive
+  // debug
+  // magari deltamin     ???? 10 secondi
+
+  unsigned iteration_index = 0;
+  while (stop_criteria(iteration_index) == false) {
+    *log << "\t> Iteration number: " << iteration_index << "\n";
+    *log << "\t> DeltaDeadline: " << delta_deadline << "\n";
+
+    // Clean the possible solutions
+    possible_solutions.clear();
+
+    // For each pair of Apps   ---  O(N^2)
+    for (unsigned i = 0; i < num_of_apps; ++i) {
+      for (unsigned j = 0; j < num_of_apps; ++j) {
+        // Not reflexive!
+        if (i != j) {
+          *log << "\t\t> Considering Application Pair (" << i << ", " << j
+               << ")\n";
+
+          // Get references to applications
+          Application& appI = process->get_application_from_index_mod(i);
+          Application& appJ = process->get_application_from_index_mod(j);
+
+          // Get current number of cores for appI and appJ
+          const unsigned num_coresI = appI.get_number_of_core();
+          const unsigned num_coresJ = appJ.get_number_of_core();
+
+          // Evaluation cost before the shifting deadline
+          const double evaluation_before =
+              objective_function({&appI, num_coresI}, {&appJ, num_coresJ});
+
+          *log << "\t\t\t> Evaluation before deadline movements: "
+               << evaluation_before << "\n";
+
+          // Shift deadline (reduce appI and increment appJ)
+          shift_deadline(&appI, &appJ, delta_deadline, &possible_solution);
+
+          *log << "\t\t\t> Evaluation after deadline movements: "
+               << possible_solution.m_evaluation_cost << "\n";
+
+          // If solution is better then save it in the vector of possible
+          // solutions. Minimi. problem
+          if (possible_solution.m_evaluation_cost < evaluation_before) {
+            possible_solutions.push_back(std::move(possible_solution));
+          }
+        }  // if i != j
+      }    // for all app j
+    }      // for all app i
+
+    // If no better solution found then split deadline
+    if (possible_solutions.empty()) {
+      *log << "\t\t> No better solution. Decreasing DeltaDeadline\n";
+      delta_deadline /= 2.0;
     } else {
-      D = D / 2;
+      // If some solutions found, then apply the best one
+
+      // Get the solution with minor cost
+      const auto min_it = std::min_element(
+          possible_solutions.cbegin(), possible_solutions.cend(),
+          [](const PossibleDeadlineShift& s1, const PossibleDeadlineShift& s2) {
+            return s1.m_evaluation_cost < s2.m_evaluation_cost;
+          });
+
+      // Apply the solution (increase and decrease deadlines)
+      auto* app_to_reduce = min_it->m_app_reduce;
+      auto* app_to_increase = min_it->m_app_increment;
+      const auto& deadline_reduce = min_it->m_new_deadline_app_reduce;
+      const auto& deadline_increase = min_it->m_new_deadline_app_increment;
+
+      *log << "\t\t> Solution Found. Applying...\n";
+      app_to_reduce->set_deadline(deadline_reduce);
+      app_to_increase->set_deadline(deadline_increase);
     }
 
-    it++;
-  }  // while
+    ++iteration_index;
+  }
+
+  *log << "CourseGrain::process > End process\n";
 }

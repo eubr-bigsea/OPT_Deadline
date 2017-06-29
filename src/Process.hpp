@@ -19,9 +19,8 @@ limitations under the License.
 #ifndef Process_hpp
 #define Process_hpp
 
-#include <memory>
 #include <opt_common/Application.hpp>
-#include <utility>
+#include <opt_common/helper.hpp>
 
 class Process {
  public:
@@ -30,43 +29,21 @@ class Process {
 
   Process() = default;
 
-  Process(opt_common::TimeInstant d) : d_line_tot(d) {}
+  const Application& get_application_from_index(unsigned index) const;
+  Application& get_application_from_index_mod(unsigned index);
 
-  const Application& operator[](unsigned index) const {
-    return applications.at(index);
-  }
-
-  Application& get_application_from_index(unsigned index);
   unsigned get_number_applications() const noexcept {
-    return applications.size();
+    return m_applications.size();
   }
-  TimeInstant get_total_deadline() const noexcept { return d_line_tot; }
-
-  TimeInstant total_real_time() const;
-  TimeInstant min_d_line();
+  TimeInstant get_total_deadline() const noexcept { return m_total_deadline; }
 
   void push_application(Application app);
 
-  // divide the deadline among the applications using the given order
-  bool distribute_d_line();
-
-  // find the correct applications to add or remove cores
-  std::pair<unsigned int, unsigned int> delta(TimeInstant D);
-
-  // evaluate the old cost and the new one if the number of cores of the
-  // applications
-  // found by the delta method is set
-  std::pair<double, double> evaluate_costs(unsigned int max,
-                                           unsigned int min) const;
-
-  // set the number of cores
-  void reset_core_dline(unsigned int max, unsigned int min, TimeInstant D);
-
-  double total_cost() const;
-
  private:
-  std::vector<Application> applications;
-  TimeInstant d_line_tot;
+  std::vector<Application> m_applications;
+
+  // TODO(biagio): THIS VALUE HAS TO BE SET! currently is not set
+  TimeInstant m_total_deadline;
 };
 
 #endif

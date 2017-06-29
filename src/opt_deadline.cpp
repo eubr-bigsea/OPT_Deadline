@@ -1,6 +1,4 @@
 /*
-Copyright 2017 Valeria Callioni
-Copyright 2017 Giulia Landriani
 Copyright 2017 Biagio Festa <info@biagiofesta.it>
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,23 +14,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+#include <iostream>
 #include "Process.hpp"
-#include <algorithm>
-#include <memory>
-#include <stdexcept>
-#include <utility>
-#include <vector>
+#include "CoarseGrain.hpp"
 
-const Process::Application& Process::get_application_from_index(
-    unsigned index) const {
-  return m_applications.at(index);
-}
-
-Process::Application& Process::get_application_from_index_mod(unsigned index) {
-  return m_applications.at(index);
-}
-
-void Process::push_application(opt_common::Application app) {
-  app.set_alpha_beta(15, 10);
-  m_applications.push_back(std::move(app));
+int main(int argc, char *argv[]) {
+  Process process;
+  CoarseGrain coarse_grain;
+  coarse_grain.process(&process, &std::cout);
+  return 0;
 }
