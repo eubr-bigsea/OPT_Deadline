@@ -30,3 +30,11 @@
 *.exe
 *.out
 *.app
+
+# GTAGS
+GPATH
+GRTAGS
+GTAGS
+
+# Emacs proj
+.dir-locals.el
