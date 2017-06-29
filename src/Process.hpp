@@ -32,6 +32,10 @@ class Process {
 
   Process(opt_common::TimeInstant d) : d_line_tot(d) {}
 
+  const Application& operator[](unsigned index) const {
+    return applications.at(index);
+  }
+
   Application& get_application_from_index(unsigned index);
   unsigned get_number_applications() const noexcept {
     return applications.size();
