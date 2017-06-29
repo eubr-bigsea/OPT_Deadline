@@ -38,3 +38,6 @@ GTAGS
 
 # Emacs proj
 .dir-locals.el
+
+#executable
+src/opt_deadline
