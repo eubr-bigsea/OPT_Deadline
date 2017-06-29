@@ -20,6 +20,7 @@ limitations under the License.
 
 int main(int argc, char *argv[]) {
   Process process;
+  process.set_total_deadline(2 * process.compute_min_deadline());
   CoarseGrain coarse_grain;
   coarse_grain.process(&process, &std::cout);
   return 0;

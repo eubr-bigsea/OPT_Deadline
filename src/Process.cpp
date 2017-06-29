@@ -36,3 +36,22 @@ void Process::push_application(opt_common::Application app) {
   app.set_alpha_beta(15, 10);
   m_applications.push_back(std::move(app));
 }
+
+Process::TimeInstant Process::compute_min_deadline() {
+  set_cores_applications();
+  return compute_total_real_time();
+}
+
+Process::TimeInstant Process::compute_total_real_time() const {
+  TimeInstant sum = 0;
+  for (const auto& app : m_applications) {
+    sum += app.compute_avg_execution_time();
+  }
+  return sum;
+}
+
+void Process::set_cores_applications() {
+  for (auto& app : m_applications) {
+    app.set_number_of_core(app.compute_max_number_of_task());
+  }
+}

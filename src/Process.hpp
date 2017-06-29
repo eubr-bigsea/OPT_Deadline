@@ -35,15 +35,24 @@ class Process {
   unsigned get_number_applications() const noexcept {
     return m_applications.size();
   }
+
   TimeInstant get_total_deadline() const noexcept { return m_total_deadline; }
+
+  void set_total_deadline(const TimeInstant& total_deadline) noexcept {
+    m_total_deadline = total_deadline;
+  }
 
   void push_application(Application app);
 
+  TimeInstant compute_min_deadline();
+
  private:
   std::vector<Application> m_applications;
-
-  // TODO(biagio): THIS VALUE HAS TO BE SET! currently is not set
   TimeInstant m_total_deadline;
+
+  TimeInstant compute_total_real_time() const;
+
+  void set_cores_applications();
 };
 
 #endif
