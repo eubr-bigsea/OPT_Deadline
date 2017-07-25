@@ -29,6 +29,9 @@ class Process {
 
   Process() = default;
 
+  static Process create_process(const std::string& data_input_namefile,
+                                const std::string& config_namefile);
+
   const Application& get_application_from_index(unsigned index) const;
   Application& get_application_from_index_mod(unsigned index);
 

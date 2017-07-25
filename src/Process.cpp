@@ -18,8 +18,10 @@ limitations under the License.
 
 #include "Process.hpp"
 #include <algorithm>
+#include <map>
 #include <memory>
 #include <stdexcept>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -38,6 +40,7 @@ void Process::push_application(opt_common::Application app) {
 }
 
 Process::TimeInstant Process::compute_min_deadline() {
+  // TODO(biagio) why change cores?!?
   set_cores_applications();
   return compute_total_real_time();
 }
@@ -54,4 +57,40 @@ void Process::set_cores_applications() {
   for (auto& app : m_applications) {
     app.set_number_of_core(app.compute_max_number_of_task());
   }
+}
+
+Process Process::create_process(const std::string& data_input_namefile,
+                                const std::string& config_namefile) {
+  std::ifstream ifs{data_input_namefile};
+  if (ifs.fail()) {
+    THROW_RUNTIME_ERROR("Impossible open the file '" + data_input_namefile +
+                        "'");
+  }
+
+  Process process;
+
+  std::string line;
+  while (std::getline(ifs, line)) {
+    std::istringstream iss{line};
+    Application::FileResources resources_filename;
+    std::string deadline_str, weight_str, num_cores_str;
+    iss >> resources_filename.m_Application_File;
+    iss >> resources_filename.m_Jobs_File;
+    iss >> resources_filename.m_Stages_File;
+    iss >> resources_filename.m_Tasks_File;
+    iss >> resources_filename.m_Lua_File;
+    iss >> resources_filename.m_Infrastructure_File;
+    iss >> deadline_str;
+    iss >> weight_str;
+    iss >> num_cores_str;
+
+    auto application = Application::create_application(
+        resources_filename, config_namefile, deadline_str);
+    application.set_weight(std::stod(weight_str));
+    application.set_number_of_core(std::stoi(num_cores_str));
+
+    process.push_application(std::move(application));
+  }
+
+  return process;
 }

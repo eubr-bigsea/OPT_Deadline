@@ -1,5 +1,5 @@
 CXX=g++
-CXXFLAGS=-std=c++14 -g -O2
+CXXFLAGS=-std=c++14 -g -O0
 OPT_COMMON_INCLUDE=/home/biagio/repositories/OPT_Common/include
 EXE=opt_deadline
 

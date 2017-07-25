@@ -20,11 +20,12 @@ limitations under the License.
 
 double CoarseGrain::compute_number_of_cores_from_deadline(
     const Application& app, const TimeInstant& deadline) {
-  //    alfa/n_core  * beta   = deadline
+  // TODO(biagio): maybe it's better to rename chi_0 and chi_c
+  //    alfa/n_core  + beta  = deadline
   //
   //        ===>
-  //                  n_core = alfa / (deadline * beta)
-  return app.get_alpha() / (static_cast<double>(deadline) * app.get_beta());
+  //                  n_core = alfa / (deadline - beta)
+  return app.get_alpha() / (static_cast<double>(deadline) - app.get_beta());
 }
 
 double CoarseGrain::objective_function(const AppNCore& app1,
@@ -66,7 +67,7 @@ void CoarseGrain::shift_deadline(Application* app_reduce,
 
   // Compute the new deadine: subtract from appI and increment appJ
   const double deadline_appI_new = deadline_appI - delta_deadline;
-  const double deadline_appJ_new = deadline_appI + delta_deadline;
+  const double deadline_appJ_new = deadline_appJ + delta_deadline;
 
   // Compute the new number of cores with new deadlines
   const unsigned ncoresI_new =
@@ -75,10 +76,10 @@ void CoarseGrain::shift_deadline(Application* app_reduce,
       compute_number_of_cores_from_deadline(*app_increment, deadline_appJ_new);
 
   // Compute difference in number of cores
-  const unsigned ncores_delta_I = ncoresI_new - ncoresI;
-  const unsigned ncores_delta_J = ncoresJ_new - ncoresJ;
-  assert(ncores_delta_I <= 0);
-  assert(ncores_delta_J >= 0);
+  const int ncores_delta_I = ncoresI_new - ncoresI;
+  const int ncores_delta_J = ncoresJ_new - ncoresJ;
+  assert(ncores_delta_I >= 0);
+  assert(ncores_delta_J <= 0);
 
   // Compute the evaluation after move deadlines
   const double evaluation = objective_function({app_reduce, ncoresI_new},

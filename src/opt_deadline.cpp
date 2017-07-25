@@ -19,9 +19,16 @@ limitations under the License.
 #include "CoarseGrain.hpp"
 
 int main(int argc, char *argv[]) {
-  Process process;
+  if (argc < 2) {
+    std::cerr << "Usage:\n"
+              << argv[0] << " DATAFILE CONFIGFILE\n";
+    return -1;
+  }
+  auto process = Process::create_process(argv[1], argv[2]);
   process.set_total_deadline(2 * process.compute_min_deadline());
+
   CoarseGrain coarse_grain;
   coarse_grain.process(&process, &std::cout);
+
   return 0;
 }
