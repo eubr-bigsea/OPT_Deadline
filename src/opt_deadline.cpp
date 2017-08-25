@@ -17,6 +17,7 @@ limitations under the License.
 #include <iostream>
 #include "Process.hpp"
 #include "CoarseGrain.hpp"
+#include "FineGrain.hpp"
 
 int main(int argc, char *argv[]) {
   if (argc < 2) {
@@ -27,8 +28,12 @@ int main(int argc, char *argv[]) {
   auto process = Process::create_process(argv[1], argv[2]);
   process.set_total_deadline(2 * process.compute_min_deadline());
 
-  CoarseGrain coarse_grain;
-  coarse_grain.process(&process, &std::cout);
+  // CoarseGrain coarse_grain;
+  // coarse_grain.process(&process, &std::cout);
+
+  FineGrain fine_grain;
+  fine_grain.set_optIC_command("/home/biagio/repositories/OPT_IC/src/opt_ic");
+  fine_grain.process(&process, &std::cout, argv);
 
   return 0;
 }

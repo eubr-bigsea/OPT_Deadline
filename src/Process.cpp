@@ -68,6 +68,7 @@ Process Process::create_process(const std::string& data_input_namefile,
   }
 
   Process process;
+  process.m_config_namefile = config_namefile;
 
   std::string line;
   while (std::getline(ifs, line)) {

@@ -49,9 +49,14 @@ class Process {
 
   TimeInstant compute_min_deadline();
 
+  const std::string& get_config_filename() const noexcept {
+    return m_config_namefile;
+  }
+
  private:
   std::vector<Application> m_applications;
   TimeInstant m_total_deadline;
+  std::string m_config_namefile;
 
   TimeInstant compute_total_real_time() const;
 
