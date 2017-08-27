@@ -38,6 +38,7 @@ GTAGS
 
 # Emacs proj
 .dir-locals.el
+.projectile
 
 #executable
 src/opt_deadline
