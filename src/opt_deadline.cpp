@@ -25,14 +25,17 @@ int main(int argc, char *argv[]) {
               << argv[0] << " DATAFILE CONFIGFILE\n";
     return -1;
   }
+
+  opt_common::Configuration opt_deadline_conf;
+  opt_deadline_conf.read_configuration_from_file(argv[2]);
+
   auto process = Process::create_process(argv[1], argv[2]);
   process.set_total_deadline(2 * process.compute_min_deadline());
 
   // CoarseGrain coarse_grain;
   // coarse_grain.process(&process, &std::cout);
 
-  FineGrain fine_grain;
-  fine_grain.set_optIC_command("/home/biagio/repositories/OPT_IC/src/opt_ic");
+  FineGrain fine_grain(opt_deadline_conf);
   fine_grain.process(&process, &std::cout, argv);
 
   return 0;

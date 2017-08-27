@@ -26,15 +26,19 @@ class FineGrain {
  public:
   using TimeInstant = opt_common::TimeInstant;
   using Application = opt_common::Application;
+  using Configuration = opt_common::Configuration;
 
-  void set_optIC_command(std::string opt_cmd) {
-    m_optIC_command = std::move(opt_cmd);
-  }
+  FineGrain(const Configuration& configuration);
 
   void process(Process* process, std::ostream* log, char* argv[]);
 
  private:
+  static constexpr const char* DAGSIM_SH = "dagsim.sh";
+  static constexpr const char* DEFAULT_TMP = "/tmp";
+
   std::string m_optIC_command;
+  std::string m_dagSim_command;
+  std::string m_tmp_directory;
 
   std::string invoke_optIC(const Application& application,
                            const std::string& config_filename) const;
@@ -52,10 +56,20 @@ class FineGrain {
     return cmd + "/" + config_file;
   }
 
+  std::string invoke_dagSim(const Application& application,
+                            int num_cores_to_evaluate) const;
+
+  std::string create_temporary_lua_file(const std::string& abs_lua_filename,
+                                        const int num_cores_to_write) const;
+
+  static std::string generate_random_string(const std::size_t len = 6) {
+    // TODO(biagio): implement
+    return "";
+  }
+
 #ifndef __unix__
   // TODO(biagio): this assertion could be erased
-  static_assert(false,
-                "The class FineGrain is for unix architecture");
+  static_assert(false, "The class FineGrain is for unix architecture");
 #endif
 };
 
