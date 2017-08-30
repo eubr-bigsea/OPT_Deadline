@@ -75,7 +75,7 @@ class FineGrain {
   }
 
 #ifndef __unix__
-  // TODO(biagio): this assertion could be erased
+  // TODO(biagio): this assertion could probably be removed
   static_assert(false, "The class FineGrain is for unix architecture");
 #endif
 };

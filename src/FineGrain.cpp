@@ -130,7 +130,7 @@ void FineGrain::process(Process* process, std::ostream* log) {
     // Store the number of cores in the vector (i-th position)
     coresFromOptIC_perApp.push_back(num_cores);
 
-    // TODO(biagio): now you have to call dagsim with 'num_cores' information
+    // now you have to call dagsim with 'num_cores' information
     // and get the execution time
     dagSim_result = invoke_dagSim(application, num_cores);
 
@@ -363,5 +363,6 @@ std::string FineGrain::create_temporary_lua_file(
 
 auto FineGrain::get_execution_time_from_dagSim_output(
     const std::string& dagsim_result) const -> TimeInstant {
+  // TODO(biagio): implement
   return std::stoul(dagsim_result);
 }
