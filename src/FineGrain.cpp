@@ -280,11 +280,9 @@ std::string FineGrain::invoke_dagSim(const Application& application,
       create_temporary_lua_file(lua_template_filename, num_cores_to_evaluate);
 
   // Create the complete command to invoke
-  /*
-  const std::string cmd = m_dagSim_command + " " + lua_mod_filename +
-                          " 2>&1 | sed -n 1,1p | awk '{print $3}'";
-  */
-  const std::string cmd = m_dagSim_command + " " + lua_mod_filename + " 2>&1";
+  const std::string cmd =
+      m_dagSim_command + " " + lua_mod_filename +
+      " 2>&1 | sed -n 1,1p | awk '{print $3}' | tee result.txt";
 
   // Launch the process (wrapped in shared ptr for safe)
   std::shared_ptr<FILE> process_pipe(popen(cmd.c_str(), "r"), pclose);
@@ -363,6 +361,6 @@ std::string FineGrain::create_temporary_lua_file(
 
 auto FineGrain::get_execution_time_from_dagSim_output(
     const std::string& dagsim_result) const -> TimeInstant {
-  // TODO(biagio): implement
+  // I expect dagsim result is a string with just the time
   return std::stoul(dagsim_result);
 }
