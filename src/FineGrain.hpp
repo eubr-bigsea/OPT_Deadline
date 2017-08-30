@@ -52,14 +52,6 @@ class FineGrain {
   int get_number_of_cores_from_optIC_output(
       const std::string& optIC_output, const Application& application) const;
 
-  std::string get_extented_path_config_file(const Process& process,
-                                            char* argv[]) {
-    std::string config_file = process.get_config_filename();
-    std::string cmd = argv[0];
-    cmd = cmd.substr(0, cmd.find_last_of('/'));
-    return cmd + "/" + config_file;
-  }
-
   std::string invoke_dagSim(const Application& application,
                             int num_cores_to_evaluate) const;
 
