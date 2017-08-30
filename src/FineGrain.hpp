@@ -30,7 +30,11 @@ class FineGrain {
 
   FineGrain(const Configuration& configuration);
 
-  void process(Process* process, std::ostream* log, char* argv[]);
+  /*! It launch FineGrain algorithm
+    \param [in, out] process    The process to elaborate
+    \param [out] log            The stream where log will be written
+   */
+  void process(Process* process, std::ostream* log);
 
  private:
   static constexpr const char* DAGSIM_SH = "dagsim.sh";
@@ -58,6 +62,9 @@ class FineGrain {
 
   std::string invoke_dagSim(const Application& application,
                             int num_cores_to_evaluate) const;
+
+  TimeInstant get_execution_time_from_dagSim_output(
+      const std::string& dagsim_result) const;
 
   std::string create_temporary_lua_file(const std::string& abs_lua_filename,
                                         const int num_cores_to_write) const;

@@ -19,7 +19,10 @@ limitations under the License.
 #include <array>
 #include <cassert>
 #include <cstring>
+#include <list>
 #include <memory>
+#include <queue>
+#include <set>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -86,26 +89,32 @@ std::string FineGrain::gen_temporary_input_file(
   return temp_filename;
 }
 
-void FineGrain::process(Process* process, std::ostream* log, char* argv[]) {
+void FineGrain::process(Process* process, std::ostream* log) {
   *log << "FineGrain::process > Starting process\n";
 
   // Get number of application in the process
   const auto number_of_applications = process->get_number_applications();
 
+  // Useful data structure
+  using IndexApplication = std::size_t;
+  using CloseList = std::set<IndexApplication>;
+
   std::string opt_IC_result;
   std::string dagSim_result;
 
   std::vector<int> coresFromOptIC_perApp;
+  std::vector<TimeInstant> residualTime_perApp;
+  TimeInstant total_residual_time = 0;
 
-  for (unsigned i = 0; i < number_of_applications; ++i) {
+  // For all applications in the process
+  for (IndexApplication i = 0; i < number_of_applications; ++i) {
     *log << "\t> Analysis application n. " << i << '\n';
     // Get i-th application
     const Application& application = process->get_application_from_index(i);
 
     // Invoke OPT_IC with the deadline in application object and same
     // configuration file of OPT_Deadline
-    opt_IC_result = invoke_optIC(application,
-                                 get_extented_path_config_file(*process, argv));
+    opt_IC_result = invoke_optIC(application, process->get_config_filename());
 
 #ifndef NDEBUG
     // Print output of execution OPT_IC
@@ -131,9 +140,108 @@ void FineGrain::process(Process* process, std::ostream* log, char* argv[]) {
          << dagSim_result << "########################################\n";
 #endif
 
-    // TODO(biagio) to continue
-    assert(false);  // to implement...
-  }                 // for all applications
+    // Get execution time parsing output dagsim
+    const TimeInstant execution_time =
+        get_execution_time_from_dagSim_output(dagSim_result);
+    *log << "\t> Execution time: " << execution_time << '\n';
+
+    // Get residual time
+    const auto residual_time = application.get_deadline() - execution_time;
+    *log << "\t> Currrent Deadline Application: " << application.get_deadline()
+         << '\n';
+    *log << "\t> Residual Time: " << residual_time << '\n';
+    residualTime_perApp.push_back(residual_time);
+
+    // Add to the total residual time
+    total_residual_time += residual_time;
+    *log << "\t> Updated Total residual Time: " << total_residual_time << '\n';
+  }  // for all applications
+
+  // Apps to not cosider any more
+  CloseList apps_to_remove;
+
+  // Until no all applications have been removed
+  while (apps_to_remove.size() < number_of_applications) {
+    double best = 0;
+    int best_new_n_cores;
+    IndexApplication best_index;
+
+    // For all applications
+    for (IndexApplication i = 0; i < number_of_applications; ++i) {
+      // Check if the application has not been removed
+      if (apps_to_remove.find(i) == apps_to_remove.cend()) {
+        *log << "\t> Considering Application Index: " << i << '\n';
+
+        // Get application reference
+        Application& application = process->get_application_from_index_mod(i);
+
+        // Invoke OPT_IC with the deadline in application object and same
+        // configuration file of OPT_Deadline
+        // We need to temporary update deadline because invoke_opt method will
+        // evaluate the internal deadline of application
+        const auto saved_deadline = application.get_deadline();
+        application.set_deadline(saved_deadline + total_residual_time);
+        opt_IC_result =
+            invoke_optIC(application, process->get_config_filename());
+        // Restore previous deadline
+        application.set_deadline(saved_deadline);
+
+        // Get the number of cores stimed by OPT_IC
+        const int new_num_cores =
+            get_number_of_cores_from_optIC_output(opt_IC_result, application);
+
+        if (new_num_cores < coresFromOptIC_perApp.at(i)) {
+          const double evaluation =
+              application.get_weight() *
+              (new_num_cores - coresFromOptIC_perApp.at(i));
+
+          if (evaluation < best) {
+            *log << "\t\t> Found new best " << evaluation << '\n';
+            best = evaluation;
+            best_index = i;
+            best_new_n_cores = new_num_cores;
+          }
+        } else {
+          *log << "\t\t> Application removed\n";
+          // Insert i-th app in the close list
+          apps_to_remove.insert(i);
+        }
+      }  // If app is not in the close list
+    }    // For all apps
+
+    // If there is a best
+    if (best < 0) {
+      *log << "\t> New improvement found for application index: " << best_index
+           << "\n";
+      // Get the candidate application
+      Application& application =
+          process->get_application_from_index_mod(best_index);
+
+      // Set the new best number of cores
+      application.set_number_of_core(best_new_n_cores);
+
+      // Call dagsim with new no. cores
+      dagSim_result = invoke_dagSim(application, best_new_n_cores);
+
+      // Get execution time parsing output dagsim
+      const TimeInstant execution_time =
+          get_execution_time_from_dagSim_output(dagSim_result);
+
+      // Update total residual time
+      total_residual_time = total_residual_time -
+                            residualTime_perApp.at(best_index) -
+                            (execution_time - application.get_deadline());
+
+      // Update deadline application
+      application.set_deadline(execution_time);
+
+      *log << "\t> New deadline for application: " << execution_time << '\n';
+      *log << "\t> New total residual time: " << total_residual_time << '\n';
+
+      // Add application to the close set
+      apps_to_remove.insert(best_index);
+    }
+  }  // while all applications removed
 }
 
 int FineGrain::get_number_of_cores_from_optIC_output(
@@ -251,4 +359,9 @@ std::string FineGrain::create_temporary_lua_file(
   output_file << input_file_str;
 
   return temp_filename;
+}
+
+auto FineGrain::get_execution_time_from_dagSim_output(
+    const std::string& dagsim_result) const -> TimeInstant {
+  return std::stoul(dagsim_result);
 }

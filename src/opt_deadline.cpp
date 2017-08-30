@@ -20,7 +20,7 @@ limitations under the License.
 #include "FineGrain.hpp"
 
 int main(int argc, char *argv[]) {
-  if (argc < 2) {
+  if (argc < 3) {
     std::cerr << "Usage:\n"
               << argv[0] << " DATAFILE CONFIGFILE\n";
     return -1;
@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
   // coarse_grain.process(&process, &std::cout);
 
   FineGrain fine_grain(opt_deadline_conf);
-  fine_grain.process(&process, &std::cout, argv);
+  fine_grain.process(&process, &std::cout);
 
   return 0;
 }
