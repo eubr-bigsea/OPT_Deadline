@@ -1,0 +1,15 @@
+/home/biagio/repositories/OPT_Deadline/test/app_files
+/home/biagio/repositories/dagSim
+/home/biagio/repositories/OPT_Deadline/test/app_files
+/home/biagio/repositories/OPT_IC/src/opt_ic
+/tmp
+
+#################
+1. CSV path
+2. Dagsim PATH (only path not binary)
+3) LUA file path
+4) opt_ic BINARY
+5) temporary directory
+
+Note that OPT_IC can read the same file configuration but it will read only first three lines
+################

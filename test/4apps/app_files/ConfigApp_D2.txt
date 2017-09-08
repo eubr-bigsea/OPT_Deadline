@@ -1,0 +1,2 @@
+#app_id chi_0  chi_c  M  m  V  v
+q52 -1.03e5 8.72e6 28 8 4 2

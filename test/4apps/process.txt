@@ -1,0 +1,7 @@
+# Lines starting with dash symbol are comments
+# Header:
+# APP_CSV  JOBS_CSV    STAGES_CSV  TASKS_CSV   LUA_FILE    CONFIG_INFR    WEIGHTS
+app_P8.csv jobs_P8.csv stages_P8.csv tasks_P8.csv test_P8.lua ConfigApp_P8.txt 3.14
+app_P82.csv jobs_P82.csv stages_P82.csv tasks_P82.csv test_P82.lua ConfigApp_P82.txt 3.14
+app_D.csv jobs_D.csv stages_D.csv tasks_D.csv test_D.lua ConfigApp_D.txt 3.14
+app_D2.csv jobs_D2.csv stages_D2.csv tasks_D2.csv test_D2.lua ConfigApp_D2.txt 3.14
