@@ -1,6 +1,6 @@
-/home/biagio/repositories/OPT_Deadline/test/2apps/app_files
+/home/biagio/repositories/OPT_Deadline/test/app_files
 /home/biagio/repositories/dagSim
-/home/biagio/repositories/OPT_Deadline/test/2apps/app_files
+/home/biagio/repositories/OPT_Deadline/test/app_files
 /home/biagio/repositories/OPT_IC/src/opt_ic
 /tmp
 

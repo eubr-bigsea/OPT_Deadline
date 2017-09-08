@@ -1,9 +1,0 @@
-Stage ID,Stage Name,Parent IDs,Number of Tasks,Submission Time,Completion Time
-0,run at ThreadPoolExecutor.java:1142,[],2,1490227739525,1490227742976
-1,showString at NativeMethodAccessorImpl.java:-2,[],2,1490227744877,1490227750106
-2,showString at NativeMethodAccessorImpl.java:-2,[],3958,1490227745491,1490228089942
-3,showString at NativeMethodAccessorImpl.java:-2,"[1, 2]",200,1490228089973,1490228102387
-4,showString at NativeMethodAccessorImpl.java:-2,[3],200,1490228102403,1490228103473
-8,showString at NativeMethodAccessorImpl.java:-2,[7],200,1490228103748,1490228104885
-9,showString at NativeMethodAccessorImpl.java:-2,[8],1,1490228104892,1490228104937
-14,showString at NativeMethodAccessorImpl.java:-2,[13],10,1490228105115,1490228105181
