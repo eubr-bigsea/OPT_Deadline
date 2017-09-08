@@ -362,5 +362,12 @@ std::string FineGrain::create_temporary_lua_file(
 auto FineGrain::get_execution_time_from_dagSim_output(
     const std::string& dagsim_result) const -> TimeInstant {
   // I expect dagsim result is a string with just the time
-  return std::stoul(dagsim_result);
+  try {
+    // TODO(biagio): maybe dagsim returns a double
+    return std::stoul(dagsim_result);
+  } catch (const std::exception& error) {
+    throw std::runtime_error(
+        "Dagsim result is empty or bad-formed. Check Dagsim configuration and "
+        "all data paths are correct.");
+  }
 }
