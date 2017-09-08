@@ -1,2 +1,5 @@
-app_1.csv jobs_1.csv stages_1.csv tasks_1.csv test_P8.lua ConfigApp_1.txt 100000 3.14 8
-app_2.csv jobs_2.csv stages_2.csv tasks_2.csv test_P8.lua ConfigApp_2.txt 200000 3.14 8
+# Lines starting with dash symbol are comments
+# Header:
+# APP_CSV  JOBS_CSV    STAGES_CSV  TASKS_CSV   LUA_FILE    CONFIG_M       WEIGHTS
+app_1.csv jobs_1.csv stages_1.csv tasks_1.csv test_P8.lua ConfigApp_1.txt 3.14
+app_2.csv jobs_2.csv stages_2.csv tasks_2.csv test_P8.lua ConfigApp_2.txt 3.14

@@ -72,25 +72,25 @@ Process Process::create_process(const std::string& data_input_namefile,
 
   std::string line;
   while (std::getline(ifs, line)) {
-    std::istringstream iss{line};
-    Application::FileResources resources_filename;
-    std::string deadline_str, weight_str, num_cores_str;
-    iss >> resources_filename.m_Application_File;
-    iss >> resources_filename.m_Jobs_File;
-    iss >> resources_filename.m_Stages_File;
-    iss >> resources_filename.m_Tasks_File;
-    iss >> resources_filename.m_Lua_File;
-    iss >> resources_filename.m_Infrastructure_File;
-    iss >> deadline_str;
-    iss >> weight_str;
-    iss >> num_cores_str;
+    // Skip empty line and if starts with dash
+    if (line.empty() == false && line.at(0) != '#') {
+      std::istringstream iss{line};
+      Application::FileResources resources_filename;
+      std::string weight_str;
+      iss >> resources_filename.m_Application_File;
+      iss >> resources_filename.m_Jobs_File;
+      iss >> resources_filename.m_Stages_File;
+      iss >> resources_filename.m_Tasks_File;
+      iss >> resources_filename.m_Lua_File;
+      iss >> resources_filename.m_Infrastructure_File;
+      iss >> weight_str;
 
-    auto application = Application::create_application(
-        resources_filename, config_namefile, deadline_str);
-    application.set_weight(std::stod(weight_str));
-    application.set_number_of_core(std::stoi(num_cores_str));
+      auto application = Application::create_application(resources_filename,
+                                                         config_namefile, "0");
+      application.set_weight(std::stod(weight_str));
 
-    process.push_application(std::move(application));
+      process.push_application(std::move(application));
+    }
   }
 
   return process;
