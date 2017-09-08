@@ -5,7 +5,7 @@ The project has been developed for *NIX systems.
 Tested on Linux with GCC compiler.
 
 * C++14 support is required.
-* OPT_Common framework. You can found here ([OPT_Framework Repository](https://github.com/BiagioFesta/OPT_Common)).
+* OPT_Common framework. You can find it here ([OPT_Framework Repository](https://github.com/BiagioFesta/OPT_Common)).
 * DagSim Project. ([DagSim Framework](https://github.com/eubr-bigsea/dagSim))
 
 ## Installation
