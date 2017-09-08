@@ -1,6 +1,14 @@
 CXX=g++
+
+#Debug Flags
 CXXFLAGS=-std=c++14 -g -O0
+
+#Release Flags
+# CXXFLAGS=-std=c++14 -O3 -DNDEBUG
+
+# OPT_Common Framework include directory
 OPT_COMMON_INCLUDE=/home/biagio/repositories/OPT_Common/include
+
 EXE=opt_deadline
 
 all: opt_deadline.o Process.o CoarseGrain.o FineGrain.o InitialSolution_FA.o InitialSolution_SA.o Algorithm1.o Algorithm2.o
