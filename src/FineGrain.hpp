@@ -45,7 +45,8 @@ class FineGrain {
   std::string m_tmp_directory;
 
   std::string invoke_optIC(const Application& application,
-                           const std::string& config_filename) const;
+                           const std::string& config_filename,
+                           std::ostream* log) const;
 
   std::string gen_temporary_input_file(const Application& application) const;
 
@@ -53,7 +54,7 @@ class FineGrain {
       const std::string& optIC_output, const Application& application) const;
 
   std::string invoke_dagSim(const Application& application,
-                            int num_cores_to_evaluate) const;
+                            int num_cores_to_evaluate, std::ostream* log) const;
 
   TimeInstant get_execution_time_from_dagSim_output(
       const std::string& dagsim_result) const;

@@ -35,7 +35,8 @@ FineGrain::FineGrain(const Configuration& configuration)
                            : configuration.get_tmp_directory())) {}
 
 std::string FineGrain::invoke_optIC(const Application& application,
-                                    const std::string& config_filename) const {
+                                    const std::string& config_filename,
+                                    std::ostream* log) const {
   static constexpr std::size_t SIZE_BUFFER = 1024;
 
   // Generate the input file for OPT_IC for this application
@@ -44,6 +45,8 @@ std::string FineGrain::invoke_optIC(const Application& application,
   // Create the complete command to invoke
   const std::string cmd = m_optIC_command + " " + input_file_application +
                           " -f -c " + config_filename + " 2>&1";
+
+  *log << "\tOptIC Invoke cmd: " << cmd << '\n';
 
   // Launch the process (wrapped in shared ptr for safe)
   std::shared_ptr<FILE> process_pipe(popen(cmd.c_str(), "r"), pclose);
@@ -114,7 +117,8 @@ void FineGrain::process(Process* process, std::ostream* log) {
 
     // Invoke OPT_IC with the deadline in application object and same
     // configuration file of OPT_Deadline
-    opt_IC_result = invoke_optIC(application, process->get_config_filename());
+    opt_IC_result =
+        invoke_optIC(application, process->get_config_filename(), log);
 
 #ifndef NDEBUG
     // Print output of execution OPT_IC
@@ -132,7 +136,7 @@ void FineGrain::process(Process* process, std::ostream* log) {
 
     // now you have to call dagsim with 'num_cores' information
     // and get the execution time
-    dagSim_result = invoke_dagSim(application, num_cores);
+    dagSim_result = invoke_dagSim(application, num_cores, log);
 
 #ifndef NDEBUG
     // Print output of execution OPT_IC
@@ -182,7 +186,7 @@ void FineGrain::process(Process* process, std::ostream* log) {
         const auto saved_deadline = application.get_deadline();
         application.set_deadline(saved_deadline + total_residual_time);
         opt_IC_result =
-            invoke_optIC(application, process->get_config_filename());
+            invoke_optIC(application, process->get_config_filename(), log);
         // Restore previous deadline
         application.set_deadline(saved_deadline);
 
@@ -221,7 +225,7 @@ void FineGrain::process(Process* process, std::ostream* log) {
       application.set_number_of_core(best_new_n_cores);
 
       // Call dagsim with new no. cores
-      dagSim_result = invoke_dagSim(application, best_new_n_cores);
+      dagSim_result = invoke_dagSim(application, best_new_n_cores, log);
 
       // Get execution time parsing output dagsim
       const TimeInstant execution_time =
@@ -269,7 +273,8 @@ int FineGrain::get_number_of_cores_from_optIC_output(
 }
 
 std::string FineGrain::invoke_dagSim(const Application& application,
-                                     int num_cores_to_evaluate) const {
+                                     int num_cores_to_evaluate,
+                                     std::ostream* log) const {
   static constexpr const std::size_t SIZE_BUFFER = 1024;
 
   // Lua template filename absolute
@@ -283,6 +288,8 @@ std::string FineGrain::invoke_dagSim(const Application& application,
   const std::string cmd =
       m_dagSim_command + " " + lua_mod_filename +
       " 2>&1 | sed -n 1,1p | awk '{print $3}' | tee result.txt";
+
+  *log << "\tDagSim invoke cmd: " << cmd << '\n';
 
   // Launch the process (wrapped in shared ptr for safe)
   std::shared_ptr<FILE> process_pipe(popen(cmd.c_str(), "r"), pclose);
