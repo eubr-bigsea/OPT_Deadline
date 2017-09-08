@@ -122,7 +122,7 @@ void FineGrain::process(Process* process, std::ostream* log) {
 
 #ifndef NDEBUG
     // Print output of execution OPT_IC
-    *log << "########################################\n"
+    *log << "########### OUTPUT_OPT_IC ##############\n"
          << opt_IC_result << "########################################\n";
 #endif
 
@@ -139,8 +139,8 @@ void FineGrain::process(Process* process, std::ostream* log) {
     dagSim_result = invoke_dagSim(application, num_cores, log);
 
 #ifndef NDEBUG
-    // Print output of execution OPT_IC
-    *log << "########################################\n"
+    // Print output of execution dagSim
+    *log << "########### OUTPUT_DAGSIM ##############\n"
          << dagSim_result << "########################################\n";
 #endif
 
