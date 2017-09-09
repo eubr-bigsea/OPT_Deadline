@@ -20,7 +20,7 @@ limitations under the License.
 #include "Algorithm2.hpp"
 #include "Process.hpp"
 
-enum class AlgorithmSelection { ALGORITHM_1, ALGORITHM_2 };
+enum class AlgorithmSelection { ALGORITHM_1, ALGORITHM_2, ALGORITHM_12 };
 
 AlgorithmSelection parse_algorithm_selection_from_cmd_line(
     const std::string& cmd_option) {
@@ -31,7 +31,7 @@ AlgorithmSelection parse_algorithm_selection_from_cmd_line(
     return AlgorithmSelection::ALGORITHM_2;
   }
   if (cmd_option == "-12") {
-    THROW_RUNTIME_ERROR("The option -12 is not supported yet");
+    return AlgorithmSelection::ALGORITHM_12;
   }
   THROW_RUNTIME_ERROR("Option '" + cmd_option + "' not recognized");
 }
@@ -76,6 +76,12 @@ int main(int argc, char* argv[]) {
     case AlgorithmSelection::ALGORITHM_2:
       Algorithm2 algorithm2;
       algorithm2.process(opt_deadline_conf, &process, &std::cout);
+      break;
+    case AlgorithmSelection::ALGORITHM_12:
+      Algorithm1 algorithm1_2;
+      Algorithm2 algorithm2_2;
+      algorithm1_2.process(opt_deadline_conf, &process, &std::cout);
+      algorithm2_2.process(opt_deadline_conf, &process, &std::cout);
       break;
     default:
       THROW_RUNTIME_ERROR("Algorithm type not recognized");

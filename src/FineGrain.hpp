@@ -63,14 +63,21 @@ class FineGrain {
                                         const int num_cores_to_write) const;
 
   static std::string generate_random_string(const std::size_t len = 6) {
-    // TODO(biagio): implement
-    return "";
-  }
+    static constexpr char alphanum_table[] =
+        "0123456789"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz";
 
-#ifndef __unix__
-  // TODO(biagio): this assertion could probably be removed
-  static_assert(false, "The class FineGrain is for unix architecture");
-#endif
+    std::string rnd_string;
+    rnd_string.reserve(len);
+
+    for (std::size_t i = 0; i < len; ++i) {
+      char rnd_char = alphanum_table[rand() % (sizeof(alphanum_table) - 1)];
+      rnd_string.push_back(rnd_char);
+    }
+
+    return rnd_string;
+  }
 };
 
 #endif  // __OPT_DEADLINE__FINE_GRAIN__HPP

@@ -1,7 +1,7 @@
 CXX=g++
 
 #Debug Flags
-CXXFLAGS=-std=c++14 -g -O0
+CXXFLAGS=-std=c++14 -g -O0 -Wall -Wextra -Wpedantic
 
 #Release Flags
 # CXXFLAGS=-std=c++14 -O3 -DNDEBUG
