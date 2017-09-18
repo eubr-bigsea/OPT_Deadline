@@ -17,4 +17,4 @@ opt_deadline:
 
 clean:
 	make clean -C src
-	rm opt_deadline
+	rm -f opt_deadline
