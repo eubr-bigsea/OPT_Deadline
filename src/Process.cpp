@@ -60,7 +60,8 @@ void Process::set_cores_applications() {
 }
 
 Process Process::create_process(const std::string& data_input_namefile,
-                                const std::string& config_namefile) {
+                                const std::string& config_namefile,
+                                TimeInstant total_deadline_process) {
   std::ifstream ifs{data_input_namefile};
   if (ifs.fail()) {
     THROW_RUNTIME_ERROR("Impossible open the file '" + data_input_namefile +
@@ -69,6 +70,7 @@ Process Process::create_process(const std::string& data_input_namefile,
 
   Process process;
   process.m_config_namefile = config_namefile;
+  process.set_total_deadline(total_deadline_process);
 
   std::string line;
   while (std::getline(ifs, line)) {

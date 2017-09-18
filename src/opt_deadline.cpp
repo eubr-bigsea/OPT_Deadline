@@ -47,9 +47,20 @@ std::string AlgorithmType2String(AlgorithmSelection algorithm_type) {
   }
 }
 
+opt_common::TimeInstant parse_total_deadline_process(
+    const std::string& deadline_str) {
+  try {
+    return std::stoul(deadline_str);
+  } catch (const std::invalid_argument&) {
+    THROW_RUNTIME_ERROR("The deadline value '" + deadline_str +
+                        "' cannot be matched into a number");
+  }
+}
+
 int main(int argc, char* argv[]) {
-  if (argc < 4) {
-    std::cerr << "Usage:\n" << argv[0] << " DATAFILE CONFIGFILE (-1|-2|-12)\n";
+  if (argc < 5) {
+    std::cerr << "Usage:\n"
+              << argv[0] << " DATAFILE CONFIGFILE DEADLINE (-1|-2|-12)\n";
     return -1;
   }
 
@@ -58,11 +69,12 @@ int main(int argc, char* argv[]) {
   opt_deadline_conf.read_configuration_from_file(argv[2]);
 
   // Create process
-  auto process = Process::create_process(argv[1], argv[2]);
-  process.set_total_deadline(2 * process.compute_min_deadline());
+  const auto total_deadline = parse_total_deadline_process(argv[3]);
+  auto process = Process::create_process(argv[1], argv[2], total_deadline);
+  // process.set_total_deadline(2 * process.compute_min_deadline());
 
   // Parse algorithm type
-  const auto algorithm_type = parse_algorithm_selection_from_cmd_line(argv[3]);
+  const auto algorithm_type = parse_algorithm_selection_from_cmd_line(argv[4]);
 
   std::cout << "Algorithm selected: " << AlgorithmType2String(algorithm_type)
             << "\n";

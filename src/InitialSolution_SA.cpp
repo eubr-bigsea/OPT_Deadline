@@ -60,7 +60,10 @@ void InitialSolution_SA::process(Process* process_to_init, std::ostream* log) {
         process_to_init->get_application_from_index_mod(index_app);
 
     // Get n for that app
-    const double n_app = compute_n_app(index_app, alpha_apps, n1);
+    const double n_app = index_app == INDEX_APP_REF
+                             ? n1
+                             : compute_n_app(index_app, alpha_apps, n1);
+    assert(n_app > 0);
 
     // Convert into deadline
     TimeInstant init_deadline = static_cast<TimeInstant>(n_app);

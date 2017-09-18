@@ -30,7 +30,8 @@ class Process {
   Process() = default;
 
   static Process create_process(const std::string& data_input_namefile,
-                                const std::string& config_namefile);
+                                const std::string& config_namefile,
+                                TimeInstant total_deadline_process);
 
   const Application& get_application_from_index(unsigned index) const;
   Application& get_application_from_index_mod(unsigned index);
@@ -39,7 +40,10 @@ class Process {
     return m_applications.size();
   }
 
-  TimeInstant get_total_deadline() const noexcept { return m_total_deadline; }
+  TimeInstant get_total_deadline() const noexcept {
+    assert(m_total_deadline != 0);
+    return m_total_deadline;
+  }
 
   void set_total_deadline(const TimeInstant& total_deadline) noexcept {
     m_total_deadline = total_deadline;
@@ -55,7 +59,7 @@ class Process {
 
  private:
   std::vector<Application> m_applications;
-  TimeInstant m_total_deadline;
+  TimeInstant m_total_deadline = 0;
   std::string m_config_namefile;
 
   TimeInstant compute_total_real_time() const;
