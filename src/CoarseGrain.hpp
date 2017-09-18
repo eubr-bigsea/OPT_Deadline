@@ -63,9 +63,10 @@ class CoarseGrain {
   //! \param [in] app_increment  The app to increase deadline
   //! \param [in] delta_deadline The amount of increment/reduction
   //! \param [out] out_solution  The output of solution in shifting
-  static void shift_deadline(Application* app_reduce, Application* app_increment,
-                      const double delta_deadline,
-                      PossibleDeadlineShift* out_solution);
+  static bool shift_deadline(Application* app_reduce,
+                             Application* app_increment,
+                             const double delta_deadline,
+                             PossibleDeadlineShift* out_solution);
 };
 
 inline bool CoarseGrain::stop_criteria(unsigned num_tot_iteration) const {

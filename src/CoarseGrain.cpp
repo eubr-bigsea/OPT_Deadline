@@ -46,7 +46,7 @@ double CoarseGrain::initialize_delta_deadline(const Process& process) {
   return process.get_total_deadline() / process.get_number_applications();
 }
 
-void CoarseGrain::shift_deadline(Application* app_reduce,
+bool CoarseGrain::shift_deadline(Application* app_reduce,
                                  Application* app_increment,
                                  const double delta_deadline,
                                  PossibleDeadlineShift* out_solution) {
@@ -78,8 +78,11 @@ void CoarseGrain::shift_deadline(Application* app_reduce,
   // Compute difference in number of cores
   const int ncores_delta_I = ncoresI_new - ncoresI;
   const int ncores_delta_J = ncoresJ_new - ncoresJ;
-  assert(ncores_delta_I >= 0);
-  assert(ncores_delta_J <= 0);
+
+  // Check feasible solution
+  if (ncores_delta_I < 0 || ncores_delta_J < 0) {
+    return false;  // infeasible solution
+  }
 
   // Compute the evaluation after move deadlines
   const double evaluation = objective_function({app_reduce, ncoresI_new},
@@ -87,6 +90,8 @@ void CoarseGrain::shift_deadline(Application* app_reduce,
   out_solution->m_evaluation_cost = evaluation;
   out_solution->m_new_deadline_app_reduce = deadline_appI_new;
   out_solution->m_new_deadline_app_increment = deadline_appJ_new;
+
+  return true;
 }
 
 void CoarseGrain::process(Process* process, std::ostream* log) {
@@ -146,15 +151,22 @@ void CoarseGrain::process(Process* process, std::ostream* log) {
                << evaluation_before << "\n";
 
           // Shift deadline (reduce appI and increment appJ)
-          shift_deadline(&appI, &appJ, delta_deadline, &possible_solution);
+          // The function return true if solution is feasible (no negative
+          // delta)
+          if (shift_deadline(&appI, &appJ, delta_deadline,
+                             &possible_solution)) {
+            *log << "\t\t\t> Evaluation after deadline movements: "
+                 << possible_solution.m_evaluation_cost << "\n";
 
-          *log << "\t\t\t> Evaluation after deadline movements: "
-               << possible_solution.m_evaluation_cost << "\n";
-
-          // If solution is better then save it in the vector of possible
-          // solutions. Minimi. problem
-          if (possible_solution.m_evaluation_cost < evaluation_before) {
-            possible_solutions.push_back(std::move(possible_solution));
+            // If solution is better then save it in the vector of possible
+            // solutions. Minimi. problem
+            if (possible_solution.m_evaluation_cost < evaluation_before) {
+              possible_solutions.push_back(std::move(possible_solution));
+            }
+          } else {
+            // Negative dealta so discard this pair of solution
+            *log << "\t\t\t> Shift Deadline has produced a negative delta. "
+                    "Solution discarded\n";
           }
         }  // if i != j
       }    // for all app j
