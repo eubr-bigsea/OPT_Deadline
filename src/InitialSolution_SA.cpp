@@ -46,8 +46,9 @@ void InitialSolution_SA::process(Process* process_to_init, std::ostream* log) {
 
     // Compute the alpha for that application
     alpha_apps[index_app] =
-        index_app == INDEX_APP_REF ? 1.0 : compute_alpha_app(application,
-                                                             ref_application);
+        index_app == INDEX_APP_REF
+            ? 1.0
+            : compute_alpha_app(application, ref_application);
   }  // for all apps
 
   // Computation n1
@@ -63,10 +64,20 @@ void InitialSolution_SA::process(Process* process_to_init, std::ostream* log) {
     const double n_app = index_app == INDEX_APP_REF
                              ? n1
                              : compute_n_app(index_app, alpha_apps, n1);
-    assert(n_app > 0);
 
-    // Convert into deadline
-    TimeInstant init_deadline = static_cast<TimeInstant>(n_app);
+    if (n_app <= 0.0) {
+      THROW_RUNTIME_ERROR("The number of cores (n) per application index " +
+                          std::to_string(index_app) +
+                          " (id_app: " + application.get_application_id() +
+                          ") has been exstimed with a value of " +
+                          std::to_string(n_app) +
+                          " <= 0.0. This error is probably due because the "
+                          "input deadline provided as input for the process is "
+                          "too small. The problem is, thus, unfeasible.");
+    }
+
+    // Compute initial deadline for application
+    TimeInstant init_deadline = compute_deadline_app(application, n_app);
 
     *log << "\tAppliation index (" << index_app
          << ") init deadline: " << init_deadline << "\n";
@@ -124,4 +135,15 @@ double InitialSolution_SA::compute_n_app(const unsigned index_app,
                                          const std::vector<double>& alpha_apps,
                                          const double n1) const {
   return alpha_apps.at(index_app) * n1;
+}
+
+auto InitialSolution_SA::compute_deadline_app(const Application& app,
+                                              double n) const -> TimeInstant {
+  const auto& mlm = app.get_machine_learning_model();
+  const double chi_0 = mlm.get_chi_0();
+  const double chi_c = mlm.get_chi_c();
+  const double deadline = chi_0 + chi_c / n;
+
+  // Convert into integer
+  return static_cast<TimeInstant>(deadline);
 }

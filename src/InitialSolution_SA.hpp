@@ -37,6 +37,8 @@ class InitialSolution_SA {
   double compute_n_app(const unsigned index_app,
                        const std::vector<double>& alpha_apps,
                        const double n1) const;
+
+  TimeInstant compute_deadline_app(const Application& app, double n) const;
 };
 
 #endif  // __OPT_DEADLINE__INITIAL_SOLUTION_SA__HPP
