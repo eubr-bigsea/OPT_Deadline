@@ -67,6 +67,11 @@ bool CoarseGrain::shift_deadline(Application* app_reduce,
   const unsigned ncoresJ =
       compute_number_of_cores_from_deadline(*app_increment, deadline_appJ);
 
+  // Check feasible solution
+  if (ncoresI == 0 || ncoresJ == 0) {
+    return false;
+  }
+
   // Compute the new deadine: subtract from appI and increment appJ
   const double deadline_appI_new = deadline_appI - delta_deadline;
   const double deadline_appJ_new = deadline_appJ + delta_deadline;
@@ -167,8 +172,8 @@ void CoarseGrain::process(Process* process, std::ostream* log) {
             }
           } else {
             // Negative dealta so discard this pair of solution
-            *log << "\t\t\t> Shift Deadline has produced a negative delta. "
-                    "Solution discarded\n";
+            *log << "\t\t\t> Shift Deadline has produced a negative number of "
+                    "cores. Solution discarded\n";
           }
         }  // if i != j
       }    // for all app j
@@ -195,6 +200,12 @@ void CoarseGrain::process(Process* process, std::ostream* log) {
       const auto& deadline_increase = min_it->m_new_deadline_app_increment;
 
       *log << "\t\t> Solution Found. Applying...\n";
+      *log << "\t\t\t> Application '" << app_to_increase->get_application_id()
+           << "' increase new deadline: " << deadline_increase
+           << " (before was: " << app_to_increase->get_deadline() << ")\n";
+      *log << "\t\t\t> Application '" << app_to_reduce->get_application_id()
+           << "' decrease new deadline: " << deadline_reduce
+           << " (before was: " << app_to_reduce->get_deadline() << ")\n";
       app_to_reduce->set_deadline(deadline_reduce);
       app_to_increase->set_deadline(deadline_increase);
     }
