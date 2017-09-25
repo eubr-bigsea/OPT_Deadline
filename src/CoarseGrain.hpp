@@ -70,6 +70,7 @@ class CoarseGrain {
 };
 
 inline bool CoarseGrain::stop_criteria(unsigned num_tot_iteration) const {
+  // TODO(biagio): maybe you want to specify a better stop criteria
   return num_tot_iteration > MAX_NUMBER_OF_ITERATION;
 }
 
