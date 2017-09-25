@@ -19,17 +19,23 @@ limitations under the License.
 #include "FineGrain.hpp"
 #include "InitialSolution_FA.hpp"
 
-void Algorithm2::process(const Configuration& configuration, Process* process,
+bool Algorithm2::process(const Configuration& configuration, Process* process,
                          std::ostream* log) {
-  // Initialization deadlines (second algorithm initialization)
-  InitialSolution_FA initial_deadline_solution;
-  initial_deadline_solution.process(process, log);
+  try {
+    // Initialization deadlines (second algorithm initialization)
+    InitialSolution_FA initial_deadline_solution;
+    initial_deadline_solution.process(process, log);
 
-  // Coarse Grain
-  CoarseGrain coarse_grain_algorithm;
-  coarse_grain_algorithm.process(process, log);
+    // Coarse Grain
+    CoarseGrain coarse_grain_algorithm;
+    coarse_grain_algorithm.process(process, log);
 
-  // Fine Grain
-  FineGrain fine_grain_algorithm(configuration);
-  fine_grain_algorithm.process(process, log);
+    // Fine Grain
+    FineGrain fine_grain_algorithm(configuration);
+    fine_grain_algorithm.process(process, log);
+  } catch (const std::exception& err) {
+    *log << err.what() << '\n';
+    return false;
+  }
+  return true;
 }

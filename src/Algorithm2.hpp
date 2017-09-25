@@ -24,7 +24,7 @@ class Algorithm2 {
  public:
   using Configuration = opt_common::Configuration;
 
-  void process(const Configuration& configuration, Process* process,
+  bool process(const Configuration& configuration, Process* process,
                std::ostream* log);
 };
 

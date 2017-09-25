@@ -18,13 +18,19 @@ limitations under the License.
 #include "FineGrain.hpp"
 #include "InitialSolution_SA.hpp"
 
-void Algorithm1::process(const Configuration& configuration, Process* process,
+bool Algorithm1::process(const Configuration& configuration, Process* process,
                          std::ostream* log) {
-  // Initialization deadlines (first algorithm initialization)
-  InitialSolution_SA initial_deadline_solution;
-  initial_deadline_solution.process(process, log);
+  try {
+    // Initialization deadlines (first algorithm initialization)
+    InitialSolution_SA initial_deadline_solution;
+    initial_deadline_solution.process(process, log);
 
-  // Fine Grain
-  FineGrain fine_grain_algorithm(configuration);
-  fine_grain_algorithm.process(process, log);
+    // Fine Grain
+    FineGrain fine_grain_algorithm(configuration);
+    fine_grain_algorithm.process(process, log);
+  } catch (const std::exception& err) {
+    *log << err.what() << '\n';
+    return false;
+  }
+  return true;
 }

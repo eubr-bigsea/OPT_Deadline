@@ -80,24 +80,31 @@ int main(int argc, char* argv[]) {
             << "\n";
 
   // Launch algorithm class in according to type
+  bool status_algorithm = false;
   switch (algorithm_type) {
     case AlgorithmSelection::ALGORITHM_1:
       Algorithm1 algorithm1;
-      algorithm1.process(opt_deadline_conf, &process, &std::cout);
+      status_algorithm =
+          algorithm1.process(opt_deadline_conf, &process, &std::cout);
       break;
     case AlgorithmSelection::ALGORITHM_2:
       Algorithm2 algorithm2;
-      algorithm2.process(opt_deadline_conf, &process, &std::cout);
+      status_algorithm =
+          algorithm2.process(opt_deadline_conf, &process, &std::cout);
       break;
     case AlgorithmSelection::ALGORITHM_12:
       Algorithm1 algorithm1_2;
       Algorithm2 algorithm2_2;
-      algorithm1_2.process(opt_deadline_conf, &process, &std::cout);
-      algorithm2_2.process(opt_deadline_conf, &process, &std::cout);
+      status_algorithm =
+          algorithm1_2.process(opt_deadline_conf, &process, &std::cout);
+      if (status_algorithm == true) {
+        status_algorithm =
+            algorithm2_2.process(opt_deadline_conf, &process, &std::cout);
+      }
       break;
     default:
       THROW_RUNTIME_ERROR("Algorithm type not recognized");
   }
 
-  return 0;
+  return status_algorithm == true ? 0 : -1;
 }
