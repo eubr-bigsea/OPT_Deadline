@@ -20,12 +20,14 @@ limitations under the License.
 
 double CoarseGrain::compute_number_of_cores_from_deadline(
     const Application& app, const TimeInstant& deadline) {
-  // TODO(biagio): maybe it's better to rename chi_0 and chi_c
-  //    alfa/n_core  + beta  = deadline
-  //
-  //        ===>
-  //                  n_core = alfa / (deadline - beta)
-  return app.get_alpha() / (static_cast<double>(deadline) - app.get_beta());
+  // Get ML model parameters
+  const auto& mlm = app.get_machine_learning_model();
+  const double chi_0 = mlm.get_chi_0();
+  const double chi_c = mlm.get_chi_c();
+
+  // Compute number of cores with formula:
+  //   n_cores = (deadline - chi_0) / chi_c
+  return (static_cast<double>(deadline) - chi_0) / chi_c;
 }
 
 double CoarseGrain::objective_function(const AppNCore& app1,

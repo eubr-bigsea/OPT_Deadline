@@ -17,12 +17,12 @@ limitations under the License.
 #include "Algorithm2.hpp"
 #include "CoarseGrain.hpp"
 #include "FineGrain.hpp"
-#include "InitialSolution_SA.hpp"
+#include "InitialSolution_FA.hpp"
 
 void Algorithm2::process(const Configuration& configuration, Process* process,
                          std::ostream* log) {
   // Initialization deadlines (second algorithm initialization)
-  InitialSolution_SA initial_deadline_solution;
+  InitialSolution_FA initial_deadline_solution;
   initial_deadline_solution.process(process, log);
 
   // Coarse Grain

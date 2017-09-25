@@ -16,12 +16,12 @@ limitations under the License.
 
 #include "Algorithm1.hpp"
 #include "FineGrain.hpp"
-#include "InitialSolution_FA.hpp"
+#include "InitialSolution_SA.hpp"
 
 void Algorithm1::process(const Configuration& configuration, Process* process,
                          std::ostream* log) {
   // Initialization deadlines (first algorithm initialization)
-  InitialSolution_FA initial_deadline_solution;
+  InitialSolution_SA initial_deadline_solution;
   initial_deadline_solution.process(process, log);
 
   // Fine Grain
