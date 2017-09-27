@@ -57,6 +57,14 @@ class Process {
     return m_config_namefile;
   }
 
+  double compute_global_objective_function() const noexcept {
+    double of = 0.0;
+    for (const auto& app : m_applications) {
+      of += app.get_weight() * app.get_number_of_core();
+    }
+    return of;
+  }
+
  private:
   std::vector<Application> m_applications;
   TimeInstant m_total_deadline = 0;

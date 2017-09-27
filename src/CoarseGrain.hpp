@@ -39,6 +39,8 @@ class CoarseGrain {
     double m_evaluation_cost;
     double m_new_deadline_app_reduce;
     double m_new_deadline_app_increment;
+    int m_new_num_cores_app_reduce;
+    int m_new_num_cores_app_increment;
   };
 
   //! Initialize the delta deadline

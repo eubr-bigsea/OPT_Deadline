@@ -97,6 +97,8 @@ bool CoarseGrain::shift_deadline(Application* app_reduce,
   out_solution->m_evaluation_cost = evaluation;
   out_solution->m_new_deadline_app_reduce = deadline_appI_new;
   out_solution->m_new_deadline_app_increment = deadline_appJ_new;
+  out_solution->m_new_num_cores_app_reduce = ncoresI_new;
+  out_solution->m_new_num_cores_app_increment = ncoresJ_new;
 
   return true;
 }
@@ -193,11 +195,13 @@ void CoarseGrain::process(Process* process, std::ostream* log) {
             return s1.m_evaluation_cost < s2.m_evaluation_cost;
           });
 
-      // Apply the solution (increase and decrease deadlines)
+      // Apply the solution (increase and decrease deadlines and num_cores)
       auto* app_to_reduce = min_it->m_app_reduce;
       auto* app_to_increase = min_it->m_app_increment;
       const auto& deadline_reduce = min_it->m_new_deadline_app_reduce;
       const auto& deadline_increase = min_it->m_new_deadline_app_increment;
+      const auto& cores_reduce = min_it->m_new_num_cores_app_reduce;
+      const auto& cores_increase = min_it->m_new_num_cores_app_increment;
 
       *log << "\t\t> Solution Found. Applying...\n";
       *log << "\t\t\t> Application '" << app_to_increase->get_application_id()
@@ -208,6 +212,12 @@ void CoarseGrain::process(Process* process, std::ostream* log) {
            << " (before was: " << app_to_reduce->get_deadline() << ")\n";
       app_to_reduce->set_deadline(deadline_reduce);
       app_to_increase->set_deadline(deadline_increase);
+      app_to_reduce->set_number_of_core(cores_reduce);
+      app_to_increase->set_number_of_core(cores_increase);
+
+      *log << "\t> [Current Result] Iteration Index: " << iteration_index
+           << "; Global Objective Function: "
+           << process->compute_global_objective_function() << '\n';
     }
 
     ++iteration_index;

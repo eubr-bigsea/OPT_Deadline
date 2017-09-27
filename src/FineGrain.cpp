@@ -164,8 +164,13 @@ void FineGrain::process(Process* process, std::ostream* log) {
   // Apps to not cosider any more
   CloseList apps_to_remove;
 
+  // Iteration in the while loop
+  unsigned iteration_index = 0;
+
   // Until no all applications have been removed
   while (apps_to_remove.size() < number_of_applications) {
+    *log << "\t> Iteration Index: " << iteration_index << '\n';
+
     double best = 0;
     int best_new_n_cores;
     IndexApplication best_index;
@@ -244,7 +249,13 @@ void FineGrain::process(Process* process, std::ostream* log) {
 
       // Add application to the close set
       apps_to_remove.insert(best_index);
+
+      *log << "\t> [Current Result] Iteration Index: " << iteration_index
+           << "; Global Objective Function: "
+           << process->compute_global_objective_function() << '\n';
     }
+
+    ++iteration_index;
   }  // while all applications removed
 }
 
