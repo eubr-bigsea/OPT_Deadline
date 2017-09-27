@@ -1,13 +1,13 @@
 CXX=g++
 
 #Debug Flags
-CXXFLAGS=-std=c++14 -g -O0 -Wall -Wextra -Wpedantic
+# CXXFLAGS=-std=c++14 -g -O0 -Wall -Wextra -Wpedantic
 
 #Release Flags
-# CXXFLAGS=-std=c++14 -O3 -DNDEBUG
+CXXFLAGS=-std=c++14 -O3 -DNDEBUG
 
 # OPT_Common Framework include directory
-OPT_COMMON_INCLUDE=/home/biagio/repositories/OPT_Common/include
+OPT_COMMON_INCLUDE=
 
 all: opt_deadline
 
