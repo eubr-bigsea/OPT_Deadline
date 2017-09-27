@@ -252,7 +252,7 @@ void FineGrain::process(Process* process, std::ostream* log) {
 
       *log << "\t> [Current Result] Iteration Index: " << iteration_index
            << "; Global Objective Function: "
-           << process->compute_global_objective_function() << '\n';
+           << process->compute_global_objective_function() << "; FineGrain\n";
     }
 
     ++iteration_index;
