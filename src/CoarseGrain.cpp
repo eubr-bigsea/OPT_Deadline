@@ -103,7 +103,8 @@ bool CoarseGrain::shift_deadline(Application* app_reduce,
   return true;
 }
 
-void CoarseGrain::process(Process* process, std::ostream* log) {
+void CoarseGrain::process(Process* process, std::ostream* log,
+                          std::ostream* result_log) {
   *log << "CourseGrain::process > Starting process\n";
 
   // Get number of applications
@@ -218,6 +219,8 @@ void CoarseGrain::process(Process* process, std::ostream* log) {
       *log << "\t> [Current Result] Iteration Index: " << iteration_index
            << "; Global Objective Function: "
            << process->compute_global_objective_function() << "; CoarseGrain\n";
+
+      process->dump_process(result_log, "CoarseGrain");
     }
 
     ++iteration_index;

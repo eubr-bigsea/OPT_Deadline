@@ -92,7 +92,8 @@ std::string FineGrain::gen_temporary_input_file(
   return temp_filename;
 }
 
-void FineGrain::process(Process* process, std::ostream* log) {
+void FineGrain::process(Process* process, std::ostream* log,
+                        std::ostream* result_log) {
   *log << "FineGrain::process > Starting process\n";
 
   // Get number of application in the process
@@ -253,6 +254,8 @@ void FineGrain::process(Process* process, std::ostream* log) {
       *log << "\t> [Current Result] Iteration Index: " << iteration_index
            << "; Global Objective Function: "
            << process->compute_global_objective_function() << "; FineGrain\n";
+
+      process->dump_process(result_log, "FineGrain");
     }
 
     ++iteration_index;

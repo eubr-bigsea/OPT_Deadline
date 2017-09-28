@@ -97,3 +97,17 @@ Process Process::create_process(const std::string& data_input_namefile,
 
   return process;
 }
+
+void Process::dump_process(std::ostream* out,
+                           const std::string& additional_message) const {
+  *out << "----DUMP PROCESS----\n";
+  for (const auto& app : m_applications) {
+    *out << "Application ID: " << app.get_application_id() << "; "
+         << "Weight: " << app.get_weight() << "; "
+         << "No. Cores: " << app.get_number_of_core() << "; "
+         << "Deadline: " << app.get_deadline() << "\n";
+  }
+  *out << "Objective Function: " << compute_global_objective_function() << "\n";
+  *out << additional_message << "\n";
+  *out << "----END DUMP----\n\n";
+}

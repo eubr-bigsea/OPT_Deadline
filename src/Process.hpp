@@ -21,6 +21,7 @@ limitations under the License.
 
 #include <opt_common/Application.hpp>
 #include <opt_common/helper.hpp>
+#include <ostream>
 
 class Process {
  public:
@@ -32,6 +33,8 @@ class Process {
   static Process create_process(const std::string& data_input_namefile,
                                 const std::string& config_namefile,
                                 TimeInstant total_deadline_process);
+
+  void dump_process(std::ostream* out, const std::string& additional_message) const;
 
   const Application& get_application_from_index(unsigned index) const;
   Application& get_application_from_index_mod(unsigned index);

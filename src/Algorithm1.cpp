@@ -1,3 +1,4 @@
+
 /*
 Copyright 2017 Biagio Festa <info@biagiofesta.it>
 
@@ -19,7 +20,7 @@ limitations under the License.
 #include "InitialSolution_SA.hpp"
 
 bool Algorithm1::process(const Configuration& configuration, Process* process,
-                         std::ostream* log) {
+                         std::ostream* log, std::ostream* result_log) {
   try {
     // Initialization deadlines (first algorithm initialization)
     InitialSolution_SA initial_deadline_solution;
@@ -27,7 +28,7 @@ bool Algorithm1::process(const Configuration& configuration, Process* process,
 
     // Fine Grain
     FineGrain fine_grain_algorithm(configuration);
-    fine_grain_algorithm.process(process, log);
+    fine_grain_algorithm.process(process, log, result_log);
   } catch (const std::exception& err) {
     *log << err.what() << '\n';
     return false;

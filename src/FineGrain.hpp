@@ -33,8 +33,9 @@ class FineGrain {
   /*! It launch FineGrain algorithm
     \param [in, out] process    The process to elaborate
     \param [out] log            The stream where log will be written
+    \param [out] result_log     The stream where results will be written
    */
-  void process(Process* process, std::ostream* log);
+  void process(Process* process, std::ostream* log, std::ostream* result_log);
 
  private:
   static constexpr const char* DAGSIM_SH = "dagsim.sh";

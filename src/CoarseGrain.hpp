@@ -26,7 +26,7 @@ class CoarseGrain {
   using Application = opt_common::Application;
   using AppNCore = std::pair<const Application*, unsigned>;
 
-  void process(Process* process, std::ostream* log);
+  void process(Process* process, std::ostream* log, std::ostream* result_log);
 
  private:
   static constexpr unsigned MAX_NUMBER_OF_ITERATION = 1000;

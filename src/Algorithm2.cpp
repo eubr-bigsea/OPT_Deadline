@@ -20,7 +20,7 @@ limitations under the License.
 #include "InitialSolution_FA.hpp"
 
 bool Algorithm2::process(const Configuration& configuration, Process* process,
-                         std::ostream* log) {
+                         std::ostream* log, std::ostream* result_log) {
   try {
     // Initialization deadlines (second algorithm initialization)
     InitialSolution_FA initial_deadline_solution;
@@ -28,11 +28,11 @@ bool Algorithm2::process(const Configuration& configuration, Process* process,
 
     // Coarse Grain
     CoarseGrain coarse_grain_algorithm;
-    coarse_grain_algorithm.process(process, log);
+    coarse_grain_algorithm.process(process, log, result_log);
 
     // Fine Grain
     FineGrain fine_grain_algorithm(configuration);
-    fine_grain_algorithm.process(process, log);
+    fine_grain_algorithm.process(process, log, result_log);
   } catch (const std::exception& err) {
     *log << err.what() << '\n';
     return false;

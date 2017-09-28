@@ -25,7 +25,7 @@ class Algorithm1 {
   using Configuration = opt_common::Configuration;
 
   bool process(const Configuration& configuration, Process* process,
-               std::ostream* log);
+               std::ostream* log, std::ostream* result_log);
 };
 
 #endif  // __OPT_DEADLINE__ALGORITHM_1__HPP

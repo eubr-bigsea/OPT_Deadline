@@ -14,7 +14,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+#include <chrono>
+#include <fstream>
 #include <iostream>
+#include <random>
 #include <string>
 #include "Algorithm1.hpp"
 #include "Algorithm2.hpp"
@@ -57,6 +60,39 @@ opt_common::TimeInstant parse_total_deadline_process(
   }
 }
 
+std::string generate_rnd_string(unsigned rnd_seed, std::size_t len) {
+  static constexpr char alphanum_table[] =
+      "0123456789"
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+      "abcdefghijklmnopqrstuvwxyz";
+
+  std::default_random_engine rnd_engine(rnd_seed);
+  std::uniform_int_distribution<> rnd_char_distr(0, sizeof(alphanum_table) - 1);
+
+  std::string rnd_string;
+  rnd_string.reserve(len);
+
+  for (std::size_t i = 0; i < len; ++i) {
+    char rnd_char = alphanum_table[rnd_char_distr(rnd_engine)];
+    rnd_string.push_back(rnd_char);
+  }
+
+  return rnd_string;
+}
+
+std::ofstream generate_result_file(AlgorithmSelection algorithm_type,
+                                   std::ostream* log, unsigned rnd_seed = 0) {
+  static constexpr const char* STATIC_FILENAME = "output_result";
+  static constexpr int LEN_RND_STRING = 6;
+  const std::string filename_result =
+      STATIC_FILENAME + AlgorithmType2String(algorithm_type) +
+      "__" + generate_rnd_string(rnd_seed, LEN_RND_STRING) + ".txt";
+
+  std::ofstream file(filename_result);
+  *log << "Generated solution file: `" << filename_result << '\n';
+  return file;
+}
+
 int main(int argc, char* argv[]) {
   if (argc < 5) {
     std::cerr << "Usage:\n"
@@ -79,27 +115,31 @@ int main(int argc, char* argv[]) {
   std::cout << "Algorithm selected: " << AlgorithmType2String(algorithm_type)
             << "\n";
 
+  auto result_log = generate_result_file(
+      algorithm_type, &std::cout,
+      std::chrono::system_clock::now().time_since_epoch().count());
+
   // Launch algorithm class in according to type
   bool status_algorithm = false;
   switch (algorithm_type) {
     case AlgorithmSelection::ALGORITHM_1:
       Algorithm1 algorithm1;
-      status_algorithm =
-          algorithm1.process(opt_deadline_conf, &process, &std::cout);
+      status_algorithm = algorithm1.process(opt_deadline_conf, &process,
+                                            &std::cout, &result_log);
       break;
     case AlgorithmSelection::ALGORITHM_2:
       Algorithm2 algorithm2;
-      status_algorithm =
-          algorithm2.process(opt_deadline_conf, &process, &std::cout);
+      status_algorithm = algorithm2.process(opt_deadline_conf, &process,
+                                            &std::cout, &result_log);
       break;
     case AlgorithmSelection::ALGORITHM_12:
       Algorithm1 algorithm1_2;
       Algorithm2 algorithm2_2;
-      status_algorithm =
-          algorithm1_2.process(opt_deadline_conf, &process, &std::cout);
+      status_algorithm = algorithm1_2.process(opt_deadline_conf, &process,
+                                              &std::cout, &result_log);
       if (status_algorithm == true) {
-        status_algorithm =
-            algorithm2_2.process(opt_deadline_conf, &process, &std::cout);
+        status_algorithm = algorithm2_2.process(opt_deadline_conf, &process,
+                                                &std::cout, &result_log);
       }
       break;
     default:
