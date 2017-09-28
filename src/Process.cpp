@@ -109,5 +109,5 @@ void Process::dump_process(std::ostream* out,
   }
   *out << "Objective Function: " << compute_global_objective_function() << "\n";
   *out << additional_message << "\n";
-  *out << "----END DUMP----\n\n";
+  *out << "----END DUMP----\n" << std::endl;
 }

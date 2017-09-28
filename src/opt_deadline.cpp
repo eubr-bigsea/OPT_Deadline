@@ -85,8 +85,9 @@ std::ofstream generate_result_file(AlgorithmSelection algorithm_type,
   static constexpr const char* STATIC_FILENAME = "output_result";
   static constexpr int LEN_RND_STRING = 6;
   const std::string filename_result =
-      STATIC_FILENAME + AlgorithmType2String(algorithm_type) +
-      "__" + generate_rnd_string(rnd_seed, LEN_RND_STRING) + ".txt";
+      std::string(STATIC_FILENAME) + "_" +
+      AlgorithmType2String(algorithm_type) + "__" +
+      generate_rnd_string(rnd_seed, LEN_RND_STRING) + ".txt";
 
   std::ofstream file(filename_result);
   *log << "Generated solution file: `" << filename_result << '\n';
@@ -107,7 +108,6 @@ int main(int argc, char* argv[]) {
   // Create process
   const auto total_deadline = parse_total_deadline_process(argv[3]);
   auto process = Process::create_process(argv[1], argv[2], total_deadline);
-  // process.set_total_deadline(2 * process.compute_min_deadline());
 
   // Parse algorithm type
   const auto algorithm_type = parse_algorithm_selection_from_cmd_line(argv[4]);
@@ -143,8 +143,9 @@ int main(int argc, char* argv[]) {
       }
       break;
     default:
-      THROW_RUNTIME_ERROR("Algorithm type not recognized");
+      std::cerr << "Algorithm type not recognized\n";
   }
 
+  result_log.close();
   return status_algorithm == true ? 0 : -1;
 }
