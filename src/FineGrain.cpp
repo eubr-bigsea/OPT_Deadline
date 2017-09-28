@@ -107,7 +107,7 @@ void FineGrain::process(Process* process, std::ostream* log,
   std::string dagSim_result;
 
   std::vector<int> coresFromOptIC_perApp;
-  std::vector<TimeInstant> residualTime_perApp;
+  std::vector<int> residualTime_perApp;
   TimeInstant total_residual_time = 0;
 
   // For all applications in the process
@@ -151,8 +151,8 @@ void FineGrain::process(Process* process, std::ostream* log,
     *log << "\t> Execution time: " << execution_time << '\n';
 
     // Get residual time
-    const auto residual_time = application.get_deadline() - execution_time;
-    *log << "\t> Currrent Deadline Application: " << application.get_deadline()
+    const int residual_time = application.get_deadline() - execution_time;
+    *log << "\t> Current Deadline Application: " << application.get_deadline()
          << '\n';
     *log << "\t> Residual Time: " << residual_time << '\n';
     residualTime_perApp.push_back(residual_time);
@@ -190,9 +190,18 @@ void FineGrain::process(Process* process, std::ostream* log,
         // We need to temporary update deadline because invoke_opt method will
         // evaluate the internal deadline of application
         const auto saved_deadline = application.get_deadline();
+        *log << "\t> Deadline input for OPT_IC (deadline + total_residual): "
+             << saved_deadline + total_residual_time << '\n';
         application.set_deadline(saved_deadline + total_residual_time);
         opt_IC_result =
             invoke_optIC(application, process->get_config_filename(), log);
+
+#ifndef NDEBUG
+        // Print output of execution OPT_IC
+        *log << "########### OUTPUT_OPT_IC ##############\n"
+             << opt_IC_result << "########################################\n";
+#endif
+
         // Restore previous deadline
         application.set_deadline(saved_deadline);
 
@@ -238,6 +247,13 @@ void FineGrain::process(Process* process, std::ostream* log,
           get_execution_time_from_dagSim_output(dagSim_result);
 
       // Update total residual time
+      *log << "\t> Total Residual (Before): " << total_residual_time << "\n";
+      *log << "\t> Residual Time best prev iteration: "
+           << residualTime_perApp.at(best_index) << "\n";
+      *log << "\t> New Execution time DagSim: " << execution_time << "\n";
+      *log << "\t> Deadline (before): " << application.get_deadline() << "\n";
+      *log << "\t> New Residual Exetimation: "
+           << execution_time - application.get_deadline() << "\n";
       total_residual_time = total_residual_time -
                             residualTime_perApp.at(best_index) -
                             (execution_time - application.get_deadline());
