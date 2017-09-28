@@ -151,7 +151,7 @@ void FineGrain::process(Process* process, std::ostream* log,
     *log << "\t> Execution time: " << execution_time << '\n';
 
     // Get residual time
-    const int residual_time = application.get_deadline() - execution_time;
+    const auto residual_time = application.get_deadline() - execution_time;
     *log << "\t> Current Deadline Application: " << application.get_deadline()
          << '\n';
     *log << "\t> Residual Time: " << residual_time << '\n';
@@ -400,8 +400,7 @@ auto FineGrain::get_execution_time_from_dagSim_output(
     const std::string& dagsim_result) const -> TimeInstant {
   // I expect dagsim result is a string with just the time
   try {
-    // TODO(biagio): maybe dagsim returns a double
-    return std::stoul(dagsim_result);
+    return std::stold(dagsim_result);
   } catch (const std::exception& error) {
     throw std::runtime_error(
         "Dagsim result is empty or bad-formed. Check Dagsim configuration and "
