@@ -252,11 +252,19 @@ void FineGrain::process(Process* process, std::ostream* log,
            << residualTime_perApp.at(best_index) << "\n";
       *log << "\t> New Execution time DagSim: " << execution_time << "\n";
       *log << "\t> Deadline (before): " << application.get_deadline() << "\n";
-      *log << "\t> New Residual Exetimation: "
+      *log << "\t> New Residual Extimation: "
            << execution_time - application.get_deadline() << "\n";
-      total_residual_time = total_residual_time -
-                            residualTime_perApp.at(best_index) -
-                            (execution_time - application.get_deadline());
+
+      if (application.get_deadline() > execution_time) {
+        THROW_RUNTIME_ERROR("Controlla la formula");
+      }
+
+      // Update total residual time
+      total_residual_time -=
+          std::abs(execution_time - application.get_deadline());
+
+      // total = total - (new deadline - prev deadline)
+      // new deadline deve essere pià grande
 
       // Update deadline application
       application.set_deadline(execution_time);
