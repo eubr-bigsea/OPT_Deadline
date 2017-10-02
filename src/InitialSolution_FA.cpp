@@ -1,5 +1,6 @@
 /*
 Copyright 2017 Biagio Festa <info@biagiofesta.it>
+Copyright 2017 Marco Lattuada <marco.lattuada@polimi.it>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -73,6 +74,19 @@ void InitialSolution_FA::process(Process* process_to_init, std::ostream* log) {
 
     application.set_deadline(new_deadline);
   }  // for all apps
+  // Estimate n using D, chi_0 and chi_c
+  for (unsigned index_app = 0; index_app < number_of_applications;
+       ++index_app) {
+    // Get index-app-th application
+    auto& application =
+        process_to_init->get_application_from_index_mod(index_app);
+    TimeInstant deadline = application.get_deadline();
+    const auto mlm = application.get_machine_learning_model();
+    const auto chi_0 = mlm.get_chi_0();
+    const auto chi_c = mlm.get_chi_c();
+    const auto estimated_n = static_cast<unsigned int>(chi_c / (deadline - chi_0));
+    application.set_number_of_core(estimated_n);
+  }
 
   *log << "InitialSolution_FA::process > Initialization completed\n";
 }
