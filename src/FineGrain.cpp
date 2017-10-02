@@ -258,7 +258,7 @@ void FineGrain::process(Process* process, std::ostream* log,
            << execution_time - application.get_deadline() << "\n";
 
       if (application.get_deadline() > execution_time) {
-        THROW_RUNTIME_ERROR("Controlla la formula");
+        THROW_RUNTIME_ERROR("New execution time is smaller than current deadline: error in residual time computation");
       }
 
       // Update total residual time
