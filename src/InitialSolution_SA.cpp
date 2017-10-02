@@ -75,7 +75,7 @@ void InitialSolution_SA::process(Process* process_to_init, std::ostream* log) {
                           "input deadline provided as input for the process is "
                           "too small. The problem is, thus, unfeasible.");
     }
-
+    application.set_number_of_core(n_app);
     // Compute initial deadline for application
     TimeInstant init_deadline = compute_deadline_app(application, n_app);
 

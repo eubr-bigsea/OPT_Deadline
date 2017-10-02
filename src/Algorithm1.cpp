@@ -27,7 +27,7 @@ bool Algorithm1::process(const Configuration& configuration, Process* process,
     initial_deadline_solution.process(process, log);
 
     // Dump with initial solution
-    process->dump_process(result_log, "Initial Solution SA");
+    process->dump_process(result_log, "Input Solution SA");
 
     // Fine Grain
     FineGrain fine_grain_algorithm(configuration);

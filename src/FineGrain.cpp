@@ -114,7 +114,7 @@ void FineGrain::process(Process* process, std::ostream* log,
   for (IndexApplication i = 0; i < number_of_applications; ++i) {
     *log << "\t> Analysis application n. " << i << '\n';
     // Get i-th application
-    const Application& application = process->get_application_from_index(i);
+    Application& application = process->get_application_from_index_mod(i);
 
     // Invoke OPT_IC with the deadline in application object and same
     // configuration file of OPT_Deadline
@@ -134,6 +134,7 @@ void FineGrain::process(Process* process, std::ostream* log,
 
     // Store the number of cores in the vector (i-th position)
     coresFromOptIC_perApp.push_back(num_cores);
+    application.set_number_of_core(num_cores);
 
     // now you have to call dagsim with 'num_cores' information
     // and get the execution time
@@ -161,6 +162,7 @@ void FineGrain::process(Process* process, std::ostream* log,
     total_residual_time += residual_time;
     *log << "\t> Updated Total residual Time: " << total_residual_time << '\n';
   }  // for all applications
+  process->dump_process(result_log, "Initial Solution SA");
 
   // Apps to not cosider any more
   CloseList apps_to_remove;
