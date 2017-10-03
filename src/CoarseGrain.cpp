@@ -27,7 +27,7 @@ double CoarseGrain::compute_number_of_cores_from_deadline(
 
   // Compute number of cores with formula:
   //   n_cores = (deadline - chi_0) / chi_c
-  return (static_cast<double>(deadline) - chi_0) / chi_c;
+  return chi_c / (static_cast<double>(deadline) - chi_0);
 }
 
 double CoarseGrain::objective_function(const AppNCore& app1,

@@ -27,11 +27,12 @@ bool Algorithm2::process(const Configuration& configuration, Process* process,
     initial_deadline_solution.process(process, log);
 
     // Dump with initial solution
-    process->dump_process(result_log, "Initial Solution FA");
+    process->dump_process(result_log, "Input Solution FA");
 
     // Coarse Grain
     CoarseGrain coarse_grain_algorithm;
     coarse_grain_algorithm.process(process, log, result_log);
+    process->dump_process(result_log, "Coarse grain solution");
 
     // Fine Grain
     FineGrain fine_grain_algorithm(configuration);
