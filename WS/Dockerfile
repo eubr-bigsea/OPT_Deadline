@@ -76,6 +76,9 @@ RUN mkdir -p /opt/OPT_DEADLINE_WS
 WORKDIR /opt/OPT_DEADLINE_WS
 
 COPY . /opt/OPT_DEADLINE_WS/
+RUN mkdir /opt/OPT_DEADLINE_WS/app_files
+RUN mkdir /opt/OPT_DEADLINE_WS/configurations
+RUN mkdir /opt/OPT_DEADLINE_WS/tmp
 
 EXPOSE 8080
 
