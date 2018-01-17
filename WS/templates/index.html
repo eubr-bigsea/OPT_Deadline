@@ -1,0 +1,291 @@
+{% extends "base.html" %}
+{% set active_page='home' %}
+
+{% block head %}
+<style>
+    .dropdown-menu {
+        max-height:400px;
+        overflow-y:scroll;
+    }
+    #application_table td {
+        padding-left:0.1rem;
+        padding-right:0.1rem;
+    }
+    #application_table button {
+        margin: 0 auto;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+{% if params.message %}
+
+<div style="padding-top:10px" class="alert alert-success" role="alert">
+  {{ params.message }}
+</div>
+
+{% endif %}
+
+<div style="padding-top: 30px"></div>
+<div class="text-center">
+    <h1 id="configuration_name" style="display:inline-block"> {{params.configuration.configuration_name}}</h1>
+    <a href="#" style="color:black;margin-left:15px;font-size:22px" onclick="edittitle(this)"><i class="fa fa-pencil fa-lg" aria-hidden="true"></i></a>
+</div>
+
+<div class="row">
+    <div class="col-sm">
+        <form action="upload" method="POST" enctype="multipart/form-data" name="addFolderForm">
+            <a href="#" role="button" class="btn btn-primary" onclick=chooseFiles()>Import files</a>
+
+            <input id="selectFileInput" name="myFile" type="file" style="display: none" onchange="javascript:this.form.submit();"></input>
+            <script type="text/javascript">
+                function chooseFiles() {
+                    document.getElementById("selectFileInput").click();
+                }
+            </script>
+        </form>
+
+    </div>
+    <div class="col-sm">
+
+    </div>
+    <div class="col-sm">
+        <div class="input-group">
+          <input type="text" class="form-control" aria-label="...">
+          <div class="input-group-btn">
+            <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-expanded="false"> <span class="caret"></span></button>
+            <div class="dropdown-menu dropdown-menu-right" role="menu">
+                {% for conf in params.configurations %}
+                    <a class="dropdown-item" href="/?conf={{conf}}"> {{conf}} </a>
+                {% endfor %}
+
+            </div>
+          </div><!-- /btn-group -->
+        </div><!-- /input-group -->
+    </div>
+
+</div>
+
+<div style="padding-top: 30px"></div>
+
+<div class="row">
+<div class="col">
+
+<table id="application_table" class="table text-center" width="100%">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Application</th>
+      <th scope="col">Jobs</th>
+      <th scope="col">Stages</th>
+      <th scope="col">Tasks</th>
+      <th scope="col">Lua file</th>
+      <th scope="col">Config infr</th>
+      <th scope="col">Weight</th>
+      <th scope="col"></th>
+    </tr>
+  </thead>
+  <tbody>
+      {% if params.configuration %}
+        {% for app in params.configuration.applications %}
+            <tr scope="row">
+                <td> {{loop.index}}</td>
+                {% for t in app[:-1] %}
+                    <td>
+                        <div class="input-group-btn">
+                            <button type="button" class="btn dropdown-toggle element" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                {{ t }}
+                            </button>
+                            <div class="dropdown-menu">
+                                {% set idx = loop.index - 1 %}
+                                {% for name in params.files[idx] %}
+                                    <a class="dropdown-item" href="#"> {{name}} </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </td>
+                {% endfor %}
+                <td>
+                    {# weights #}
+                    <div class="form-group">
+                        <input type="text" class="element" value="{{ app[-1] }}" size="6">
+                    </div>
+                </td>
+                <td><a style="color: black" role="button" href="#" onclick="removerow(this)"> <i class="fa fa-remove fa-2x"></i> </a> </td>
+            </tr>
+        {% endfor %}
+      {% endif %}
+    <tr>
+      <th scope="row"></th>
+      <td><a href="#" role="button" onclick="addrow()" class="btn btn-light"><i class="fa fa-plus fa-2x"></i></a> </td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+
+<div class="row">
+    <div class="col-sm" id="algorithm_selection">
+        <div class="form-check">
+          <label class="form-check-label">
+            <input id="algorithm_1_check" class="form-check-input" type="checkbox" value="algorithm1">
+            Algorithm 1
+          </label>
+        </div>
+        <div class="form-check">
+          <label class="form-check-label">
+            <input id="algorithm_2_check" class="form-check-input" type="checkbox" value="algorithm2">
+            Algorithm 2
+          </label>
+        </div>
+    </div>
+    <div class="col-sm">
+        <div class="text-right">
+            <a href="#" role="button" class="btn btn-light" onclick="saveconfiguration()">Save configuration</a>
+        </div>
+        <div style="padding-top: 10px"></div>
+
+        <div class="form-inline text-right" style="float:right">
+            <div class="form-group">
+                <label> Deadline:&nbsp;</label>  <input id="deadline_input" type="text" class="form-control" >&nbsp;ms<span style="width:20px"></span>
+
+            </div>
+
+            <a href="#" role="button" class="btn btn-primary" onclick="runapplication()">Run</a>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script type="text/javascript">
+    function addrow() {
+        var size = $('#application_table tr').length - 1
+        $('#application_table tr:last').before($('#application_table tbody tr:first').clone());
+        for (var i = 0; i < $('#application_table tbody tr').length - 1; i++) {
+            $('#application_table tbody tr').eq(i).find('td:first').html(''+(i+1));
+        }
+        $('.dropdown-item').click(function(e) {
+            $(this).closest('td').find('button').html($(this).text());
+        });
+    }
+
+    function removerow(obj) {
+        if ($('#application_table tbody tr').length > 2) {
+            $(obj).closest('tr').remove();
+            for (var i = 0; i < $('#application_table tbody tr').length - 1; i++) {
+                $('#application_table tbody tr').eq(i).find('td:first').html(''+(i+1));
+            }
+        }
+
+    }
+
+    function edittitle(obj) {
+        var prev_text = $(obj).closest('div').find('h1').text();
+        $(obj).closest('div').find('h1').html('<input type="text" value="' + prev_text + '"><button class="btn btn-primary" href="#" onclick="finishedit(this)">Done</button>');
+        $(obj).remove();
+    }
+
+    function finishedit(obj) {
+        var title = $(obj).closest('div').find('input').val();
+        $(obj).closest('div').html('<h1 id="configuration_name" style="display:inline-block"> ' + title + '</h1><a href="#" style="color:black;margin-left:15px;font-size:22px" onclick="edittitle(this)"><i class="fa fa-pencil fa-lg" aria-hidden="true"></i></a>')
+    }
+
+    $(document).ready(function() {
+        $('.dropdown-item').click(function(e) {
+            $(this).closest('td').find('button').html($(this).text());
+        });
+        $('#algorithm_1_check').prop('checked', true);
+        $('#algorithm_2_check').prop('checked', true);
+    })
+
+    function saveconfiguration() {
+        var myTableArray = [];
+
+        $("#application_table tr").each(function() {
+            var arrayOfThisRow = [];
+            var tableData = $(this).find('td .element');
+            if (tableData.length > 0) {
+                tableData.each(function(index) {
+                    var value = '';
+                    if (index !== tableData.length - 1)
+                        value = $(this).text().trim();
+                    else {
+                        value = $(this).val().trim();
+                    }
+                    arrayOfThisRow.push(value);
+                });
+                myTableArray.push(arrayOfThisRow);
+            }
+        });
+
+        configuration_name = $('#configuration_name').text().trim();
+
+        var algorithms = [];
+        $('#algorithm_selection input').each(function(i,e) {
+            var elem = $(e);
+            var a = {}
+            a[elem.val().trim()] = elem.prop('checked');
+            algorithms.push(a);
+        });
+
+
+        $.ajax({
+            'type' : 'POST',
+            'dataType'    : 'JSON',
+            'contentType' : 'application/json',
+            'url'         : '/config/save',
+            'data'        : JSON.stringify({'configuration_name':configuration_name, 'applications': myTableArray, 'algorithms' : algorithms}),
+            'success'     : function(response)
+            {
+                if (response['status'] == 200) {
+                    var content = '<div style="padding-top:10px" class="alert alert-success" role="alert">' + response['message'] + ' </div>';
+                    // $('#container').prepend(content);
+                    window.location = '/?message=' + response['message'] + '&conf=' + configuration_name;
+                }
+                else {
+                    var content = '<div style="padding-top:10px" class="alert alert-danger" role="alert">' + response['message'] + ' </div>';
+                    $('#container').prepend(content);
+                }
+            }
+        });
+    }
+
+    function runapplication() {
+        configuration_name = $('#configuration_name').text().trim();
+
+        var algorithms = {};
+        $('#algorithm_selection input').each(function(i,e) {
+            var elem = $(e);
+            var a = {}
+            algorithms[elem.val().trim()] = elem.prop('checked');
+        });
+
+        var deadline=$('#deadline_input').val();
+
+        $.ajax({
+            'type' : 'POST',
+            'dataType'    : 'JSON',
+            'contentType' : 'application/json',
+            'url'         : '/run_application',
+            'data'        : JSON.stringify({'configuration_name':configuration_name, 'algorithms' : algorithms, 'deadline' : deadline})
+        }).done(function(msg) {
+            var content = '<div style="padding-top:10px" class="alert alert-success" role="alert">' + msg + ' </div>';
+            $('#container').prepend(content);
+        });
+
+    }
+
+</script>
+{% endblock %}

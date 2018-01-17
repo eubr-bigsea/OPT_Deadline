@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% set active_page=params.app_session_id %}
+{% set navigation_bar_add = [('/', params.app_session_id, params.app_session_id)] %}
+
+
+{% block content %}
+<div style="padding-top: 30px"></div>
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">App id</th>
+      <th scope="col">Computed deadline</th>
+      <th scope="col">Num core</th>
+      <th scope="col">Num VM</th>
+      <th scope="col">Cost</th>
+    </tr>
+  </thead>
+  <tbody>
+      {% for app in params.app_status.configuration.applications %}
+        <tr>
+          <th scope="row">{{params.app_status.query_name[loop.index-1]}}</th>
+          <td>{{params.app_status.deadlines[loop.index-1]}}</td>
+          <td>{{params.app_status.n_cores[loop.index-1]}}</td>
+          <td>{{params.app_status.num_vms[loop.index-1]}}</td>
+          <td>{{(app[-1] | float) * (params.app_status.n_cores[loop.index-1] | int)}}</td>
+        </tr>
+      {% endfor %}
+      <tr>
+        <th scope="row">Total</th>
+        <td>{{params.app_status.computed_deadline}}</td>
+        <td>{{params.app_status.total_cores}}</td>
+        <td>{{params.app_status.total_vms}}</td>
+        <td>{{params.app_status.total_cost}}</td>
+      </tr>
+  </tbody>
+</table>
+
+{% for output_file in params.output_params %}
+<div class="row-fluid" style="margin:50px 30px">
+    <h2> {{output_file.filename}} </h2>
+
+    <textarea rows="{{output_file.num_rows}}" style="height: auto" class="form-control" readonly>{{output_file.content}}</textarea>
+</div>
+
+{% endfor %}
+
+<div class="row-fluid" style="margin-bottom:50px"></div>
+
+
+
+
+{% endblock %}

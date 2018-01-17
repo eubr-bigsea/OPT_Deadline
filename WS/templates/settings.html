@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% set active_page='settings' %}
+{% set navigation_bar_add = [('/settings', 'settings', 'Settings')] %}
+
+
+{% block content %}
+
+<div style="padding-top: 30px"></div>
+<div class="text-center">
+    <h1> Settings </h1>
+</div>
+
+<div class="container">
+<div style="padding-top: 30px"></div>
+<table id="settings_table" class="table-sm text-center" width="100%">
+
+  <tbody>
+
+{% for param in params.D %}
+
+<tr scope="row">
+    <td> {{param}} </td>
+    <td> <div class="form-group"> <input type="text" value="{{params[param]}}" id="{{param}}" class="form-control"></div></td>
+</tr>
+
+{% endfor %}
+</tbody>
+</table>
+
+<div class="text-right" style="float:right">
+    <a href="#" role="button" class="btn btn-primary" onclick="savesettings()">Save settings</a>
+</div>
+
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<script type="text/javascript">
+    function savesettings() {
+        var data = {};
+        $("#settings_table tr input").each(function(idx, elem) {
+            data[elem.id] = elem.value;
+        });
+
+
+        $.ajax({
+            'type' : 'POST',
+            'dataType'    : 'JSON',
+            'contentType' : 'application/json',
+            'url'         : '/savesettings',
+            'data'        : JSON.stringify(data),
+            'success'     : function(response)
+            {
+                if (response['status'] == 200) {
+                    var content = '<div style="padding-top:10px" class="alert alert-success" role="alert">' + response['message'] + ' </div>';
+                    $('#container').prepend(content);
+                }
+                else {
+                    var content = '<div style="padding-top:10px" class="alert alert-danger" role="alert">' + response['message'] + ' </div>';
+                    $('#container').prepend(content);
+                }
+            }
+        });
+    }
+</script>
+{% endblock %}

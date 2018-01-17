@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% set active_page='results' %}
+
+
+{% block content %}
+<div style="padding-top: 30px"></div>
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Opt deadline session</th>
+      <th scope="col">Name</th>
+      <th scope="col">Initial deadline</th>
+      <th scope="col">Submission time</th>
+      <th scope="col">Completion time</th>
+      <th scope="col">Status</th>
+      <th scope="col">Total cost</th>
+      <th scope="col">Computed deadline</th>
+      <th scope="col"></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for result in params %}
+      <tr>
+        <th scope="row">{{result.application_session_id}}</th>
+        <td>{{result.name}}</td>
+        <td>{{result.initial_deadline}}</td>
+        <td>{{result.started_time_format}}</td>
+        <td>{{result.completed_time_format}}</td>
+        <td>{{result.status}}</td>
+        <td>{{result.total_cost}}</td>
+        <td>{{result.computed_deadline}}</td>
+        <td><a href="/view_results?app_session_id={{result.application_session_id}}"> view </a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}

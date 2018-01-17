@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link href="/static/css/bootstrap.css" rel="stylesheet" type="text/css">
+    <link href="/static/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    {% block head %}
+
+    <title> Opt deadline WS</title>
+    {% endblock %}
+
+
+    <style>
+        .menu-divider {
+            display: block;
+            border-right: 1px solid rgba(0, 0, 0, 0.9);
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            {% set navigation_bar = [('/', 'home', 'Home'), ('/results', 'results', 'Results')] -%}
+            {% set active_page = active_page|default('home') -%}
+
+            <ul class="navbar-nav mr-auto">
+                {% for href, id, caption in navigation_bar %}
+                <li class="nav-item {% if id == active_page %}active{% endif %}">
+                    <a class="nav-link" href="{{href}}">{{caption}} </a>
+                </li>
+                {% endfor %}
+
+                {% if navigation_bar_add is defined %}
+                    <div class="menu-divider"></div>
+                    {% for href, id, caption in navigation_bar_add %}
+                        <li class="nav-item {% if id == active_page %}active{% endif %}">
+                            <a class="nav-link" href="{{href}}">{{caption}} </a>
+                        </li>
+                    {% endfor %}
+
+                {% endif %}
+            </ul>
+
+            <a href="/settings" role="button" class="btn-dark nav-link">
+                <i class="fa fa-cog fa-lg"></i> Settings
+            </a>
+        </div>
+    </nav>
+
+    <div class="container-fluid" id="container">
+        {% block content %}{% endblock %}
+    </div>
+
+    <script src="/static/js/jquery-3.2.1.min.js"></script>
+    <script src="/static/js/bootstrap.bundle.min.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>
