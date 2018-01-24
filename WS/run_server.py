@@ -195,7 +195,7 @@ def read_file_content(path):
             content = f.read()
         return content if len(content) > 0 else '-'
     except:
-        return "File not found"
+        return " - "
 
 def parse_query_name(path):
     content = read_file_content(path)
@@ -236,7 +236,11 @@ class ApplicationStatus(object):
                 self.computed_deadline = read_file_content(os.path.join(SETTINGS.TMP_FOLDER, application_session_id, 'output', 'result.txt'))
 
                 self.total_cost = 0.0
-                result_filename = glob.glob(os.path.join(SETTINGS.TMP_FOLDER, application_session_id, 'output', 'output_result_Algorithm2*'))[0]
+                if os.path.exists(os.path.join(SETTINGS.TMP_FOLDER, application_session_id, 'output', 'output_result_Algorithm2*')):
+                    result_filename = glob.glob(os.path.join(SETTINGS.TMP_FOLDER, application_session_id, 'output', 'output_result_Algorithm2*'))[0]
+                else:
+                    result_filename = glob.glob(os.path.join(SETTINGS.TMP_FOLDER, application_session_id, 'output', 'output_result_Algorithm1*'))[0]
+
                 self.n_cores = parse_result_ncore(os.path.join(SETTINGS.TMP_FOLDER, application_session_id, 'output', result_filename))
                 self.deadlines = parse_result_computed_deadlines(os.path.join(SETTINGS.TMP_FOLDER, application_session_id, 'output', result_filename))
                 for nc, w in zip(self.n_cores, self.configuration.applications):
