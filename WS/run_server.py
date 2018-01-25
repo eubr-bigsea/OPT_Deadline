@@ -236,17 +236,31 @@ class ApplicationStatus(object):
                 self.computed_deadline = read_file_content(os.path.join(SETTINGS.TMP_FOLDER, application_session_id, 'output', 'result.txt'))
 
                 self.total_cost = 0.0
-                if os.path.exists(os.path.join(SETTINGS.TMP_FOLDER, application_session_id, 'output', 'output_result_Algorithm2*')):
+
+                # Tries considering the result of algorithm 2 first
+                try:
                     result_filename = glob.glob(os.path.join(SETTINGS.TMP_FOLDER, application_session_id, 'output', 'output_result_Algorithm2*'))[0]
-                else:
+                except Exception as e: # Algorithm2 not found
                     result_filename = glob.glob(os.path.join(SETTINGS.TMP_FOLDER, application_session_id, 'output', 'output_result_Algorithm1*'))[0]
 
-                self.n_cores = parse_result_ncore(os.path.join(SETTINGS.TMP_FOLDER, application_session_id, 'output', result_filename))
-                self.deadlines = parse_result_computed_deadlines(os.path.join(SETTINGS.TMP_FOLDER, application_session_id, 'output', result_filename))
-                for nc, w in zip(self.n_cores, self.configuration.applications):
-                    self.total_cost += int(nc) * float(w[-1])
+                try:
+                    self.n_cores = parse_result_ncore(os.path.join(SETTINGS.TMP_FOLDER, application_session_id, 'output', result_filename))
+                    self.deadlines = parse_result_computed_deadlines(os.path.join(SETTINGS.TMP_FOLDER, application_session_id, 'output', result_filename))
+                    for nc, w in zip(self.n_cores, self.configuration.applications):
+                        self.total_cost += int(nc) * float(w[-1])
 
-                self.total_cost = str(self.total_cost)
+                    self.total_cost = str(self.total_cost)
+
+                except Exception as e:
+                    print("Exception found in parsing the result: {}".format(e))
+
+                    self.n_cores = ['0']*len(self.configuration.applications)
+                    self.deadlines = ['-']*len(self.configuration.applications)
+                    self.total_cost = '-'
+
+                if len(self.n_cores) != len(self.configuration.applications):
+                    self.n_cores = ['0']*len(self.configuration.applications)
+
             else:
                 self.status = 'RUNNING'
                 self.computed_deadline = '-'
@@ -282,7 +296,9 @@ class ApplicationStatus(object):
                 except Exception as e:
                     print(e)
                     self.V.append('1')
-                    self.num_vms.append(self.n_cores[i])
+                    print("[DEBUG] self.configuration_applications = {}".format(self.configuration.applications))
+                    print("[DEBUG] self.n_cores = {}, i = {}".format(self.n_cores, i))
+                    self.num_vms.append(0)
                     self.query_name.append('-')
 
             self.total_cores = sum(map(int, self.n_cores))
